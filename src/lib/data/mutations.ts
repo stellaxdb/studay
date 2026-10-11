@@ -1,6 +1,7 @@
 "use client";
 
 import { mutate } from "swr";
+import { trackEvent, trackEventOnce, yesNo } from "@/lib/analytics";
 import { getSupabase } from "@/lib/supabase/client";
 import type { EventType, Priority, StudySession, Subject, TodoStatus } from "@/lib/types";
 import { revalidate } from "./keys";
@@ -45,6 +46,7 @@ export interface SubjectInput {
 
 export async function createSubject(input: SubjectInput) {
   const row = check(await getSupabase().from("subjects").insert(input).select("id").single());
+  trackEvent("subject_create", { has_weekly_goal: yesNo(input.weekly_goal_minutes > 0) });
   await revalidate("subjects");
   return row as { id: string };
 }
@@ -154,6 +156,11 @@ export interface TodoInput {
 
 export async function createTodo(input: TodoInput) {
   check(await getSupabase().from("todos").insert(input));
+  trackEvent("todo_create", {
+    priority: input.priority,
+    has_due_date: yesNo(input.due_date),
+    has_category: yesNo(input.category_id),
+  });
   await revalidate("todos");
 }
 
@@ -163,8 +170,17 @@ export async function updateTodo(id: string, input: Partial<TodoInput>) {
 }
 
 export async function setTodoStatus(id: string, status: TodoStatus) {
-  // completed_at is maintained by a database trigger.
-  check(await getSupabase().from("todos").update({ status }).eq("id", id));
+  // completed_at is maintained by a database trigger. Only a row that actually
+  // changes is returned, so todo_complete is sent once per real completion.
+  const changed = check(
+    await getSupabase()
+      .from("todos")
+      .update({ status })
+      .eq("id", id)
+      .neq("status", status)
+      .select("id"),
+  );
+  if (status === "done" && (changed ?? []).length > 0) trackEvent("todo_complete", {});
   await revalidate("todos");
 }
 
@@ -212,7 +228,12 @@ async function timerRpc(fn: string, args: Record<string, unknown>) {
 
 export async function startSession(subjectId: string, todoId: string | null) {
   try {
-    return await timerRpc("start_study_session", { p_subject_id: subjectId, p_todo_id: todoId });
+    const session = await timerRpc("start_study_session", {
+      p_subject_id: subjectId,
+      p_todo_id: todoId,
+    });
+    trackEvent("study_session_start", { with_todo: yesNo(todoId) });
+    return session;
   } finally {
     await revalidate("active-session");
   }
@@ -220,7 +241,11 @@ export async function startSession(subjectId: string, todoId: string | null) {
 
 export async function pauseSession(id: string) {
   try {
-    return await timerRpc("pause_study_session", { p_session_id: id });
+    const session = await timerRpc("pause_study_session", { p_session_id: id });
+    // Pausing is idempotent: a repeated request returns the same row (same
+    // updated_at), so the key only changes for a new pause.
+    trackEventOnce(`pause:${session.id}:${session.updated_at}`, "study_session_pause", {});
+    return session;
   } finally {
     await revalidate("active-session");
   }
@@ -236,7 +261,16 @@ export async function resumeSession(id: string) {
 
 export async function finishSession(id: string, note: string | null) {
   try {
-    return await timerRpc("finish_study_session", { p_session_id: id, p_note: note });
+    const session = await timerRpc("finish_study_session", { p_session_id: id, p_note: note });
+    // Finishing is idempotent and the session is counted once; report it once too.
+    if (session.status === "completed") {
+      trackEventOnce(`complete:${session.id}`, "study_session_complete", {
+        duration_seconds: session.total_seconds,
+        duration_minutes: Math.round(session.total_seconds / 60),
+        with_todo: yesNo(session.todo_id),
+      });
+    }
+    return session;
   } finally {
     await revalidate("active-session", "intervals", "sessions");
   }

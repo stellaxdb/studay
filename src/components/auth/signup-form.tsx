@@ -8,6 +8,7 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { trackEvent } from "@/lib/analytics";
 import { authCallbackUrl } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
@@ -61,7 +62,9 @@ export function SignupForm() {
         return;
       }
       if (data.session) {
-        // Email confirmation is disabled in this Supabase project.
+        // Email confirmation is disabled in this Supabase project. With it on,
+        // sign_up is reported when the confirmation link is opened instead.
+        trackEvent("sign_up", { method: "email" });
         await clearCache({ refetch: true });
         router.replace("/");
         router.refresh();

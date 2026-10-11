@@ -25,7 +25,7 @@ export function GoogleButton({
     try {
       const { error } = await getSupabase().auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: authCallbackUrl(window.location.origin, next) },
+        options: { redirectTo: authCallbackUrl(window.location.origin, next, "google") },
       });
       if (error) {
         onError(authErrorMessage(error));
