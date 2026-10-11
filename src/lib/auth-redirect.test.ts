@@ -22,9 +22,4 @@ describe("authCallbackUrl", () => {
       "http://localhost:3000/auth/callback?next=%2F",
     );
   });
-  it("marks Google sign-ins so the callback can tell them from email links", () => {
-    expect(authCallbackUrl("https://studay.vercel.app", "/", "google")).toBe(
-      "https://studay.vercel.app/auth/callback?next=%2F&via=google",
-    );
-  });
 });

@@ -251,7 +251,7 @@
 
 ### 폴더 구조
 
-- `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` 이메일 인증 처리
+- `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` Google 로그인 완료 처리
 - `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy)
 - `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 같은 이름의 `*.test.ts`, `src/test/` 테스트용 데이터 생성 함수, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지. 이벤트를 바꾸면 `docs/analytics.md`도 갱신), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
 - `src/components/ui/` 공통 UI, 그 외 `src/components/*` 도메인별 컴포넌트
@@ -266,7 +266,7 @@
 - "오늘"과 주간 통계는 `user_settings.timezone`(기본 `Asia/Seoul`) 기준이며, 자정을 넘는 구간은 날짜별로 나눠 집계한다.
 - TODO 마감일은 `todos.due_date`(날짜만)에서 캘린더에 파생 표시하고, `calendar_events`에는 독립 일정만 저장한다.
 - 과목 삭제 시 카테고리·TODO·공부 기록은 함께 삭제되고 일정은 과목 연결만 해제된다. 기본 비활성화 수단은 "보관"이다.
-- 새 계정은 Google 로그인으로만 만든다. 이메일 로그인은 기존 이메일 계정용으로만 남긴다.
+- 로그인·가입은 Google 로그인만 사용한다(Supabase Email provider 비활성화). 이메일·비밀번호 로그인을 다시 추가하려면 사용자와 먼저 상의한다.
 - 개인 데이터는 브라우저에서 Supabase(RLS)로 조회한다. 로그인 사용자가 바뀌면 조회 캐시를 비운다(`clearCache`).
 
 ### 브랜치와 커밋

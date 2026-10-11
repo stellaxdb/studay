@@ -6,11 +6,9 @@ export function safeNext(value: string | null | undefined): string {
   return value;
 }
 
-/** Absolute URL of the auth callback route that finishes email and OAuth sign-in. */
-export function authCallbackUrl(origin: string, next?: string | null, via?: "google"): string {
+/** Absolute URL of the auth callback route that finishes Google sign-in. */
+export function authCallbackUrl(origin: string, next?: string | null): string {
   const url = new URL("/auth/callback", origin);
   url.searchParams.set("next", safeNext(next));
-  // Lets the callback tell a Google sign-in apart from an email confirmation link.
-  if (via) url.searchParams.set("via", via);
   return url.toString();
 }

@@ -16,7 +16,7 @@ npm run dev                  # http://localhost:3000
 
 - 환경 변수 설명은 [배포 가이드 › 환경 변수](docs/deployment.md#환경-변수)를 참고하세요. `.env.local`은 커밋되지 않습니다.
 - 환경 변수가 없으면 앱은 오류 대신 "Supabase 연결이 필요해요" 안내 화면을 보여줍니다.
-- 로컬에서 로그인하려면 Supabase URL Configuration의 Redirect URLs에 `http://localhost:3000/auth/callback`이 있어야 합니다(이메일 인증·Google 로그인 사용 시).
+- 로컬에서 로그인하려면 Supabase URL Configuration의 Redirect URLs에 `http://localhost:3000/auth/callback`이 있어야 합니다(Google 로그인에 필요).
 
 ## 1. 브랜치 전략 (GitHub Flow)
 
