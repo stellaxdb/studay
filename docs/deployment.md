@@ -38,6 +38,15 @@ DB를 바꿀 때는 기존 파일을 수정하지 말고 새 마이그레이션 
 
 Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.vercel.app/auth/callback` 같은 와일드카드를 추가합니다.
 
+**비밀번호 규칙 (서버)**: 앱의 가입 화면은 8자 이상 + 영문·숫자 포함을 검사하지만(`src/lib/auth-validation.ts`), 화면을 거치지 않는 요청까지 막으려면 Supabase에도 같은 규칙을 설정해야 합니다. **Sign In / Providers > Email**(또는 Authentication > Providers > Email)에서 다음처럼 설정하고 Save 합니다.
+
+| 항목                    | 값                                      |
+| ----------------------- | --------------------------------------- |
+| Minimum password length | `8`                                     |
+| Password Requirements   | `Letters and digits` (영문과 숫자 필수) |
+
+이미 가입한 계정의 비밀번호는 바뀌지 않으며, 로그인 화면은 비밀번호 규칙을 다시 검사하지 않습니다(형식과 빈칸만 확인).
+
 **이메일 인증**: Supabase 기본 메일 서버는 발송량이 적은 테스트용입니다. 혼자 쓰거나 테스트할 때는 **Sign In / Providers > Email**에서 **Confirm email**을 끄면 가입 즉시 로그인됩니다. 여러 사람이 쓰게 하려면 Custom SMTP를 설정하세요.
 
 ## 3. Vercel

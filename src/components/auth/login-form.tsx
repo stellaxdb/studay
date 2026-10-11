@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
 import { trackEvent } from "@/lib/analytics";
 import { safeNext } from "@/lib/auth-redirect";
+import { normalizeEmail, validateLogin, type LoginField } from "@/lib/auth-validation";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
@@ -28,18 +29,31 @@ export function LoginForm() {
     return null;
   });
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<LoginField, boolean>>>({});
+  const [submitCount, setSubmitCount] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const allErrors = validateLogin({ email, password });
+  const fieldError = (field: LoginField) => (touched[field] ? allErrors[field] : undefined);
+  const touch = (field: LoginField) => () => setTouched((t) => ({ ...t, [field]: true }));
+
+  useEffect(() => {
+    if (submitCount === 0) return;
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [submitCount]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!email.trim() || !password) {
-      setError("이메일과 비밀번호를 입력해 주세요.");
+    setTouched({ email: true, password: true });
+    if (Object.keys(allErrors).length > 0) {
+      setSubmitCount((n) => n + 1);
       return;
     }
     setLoading(true);
     try {
       const { error: signInError } = await getSupabase().auth.signInWithPassword({
-        email: email.trim(),
+        email: normalizeEmail(email),
         password,
       });
       if (signInError) {
@@ -65,30 +79,34 @@ export function LoginForm() {
         <GoogleButton next={params.get("next")} onError={setError} />
       </div>
       <AuthDivider />
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-        <Field label="이메일">
-          {({ id, describedBy }) => (
+      <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+        <Field label="이메일" error={fieldError("email")}>
+          {({ id, describedBy, invalid }) => (
             <Input
               id={id}
               aria-describedby={describedBy}
+              aria-invalid={invalid}
               type="email"
               autoComplete="email"
               inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={touch("email")}
               required
             />
           )}
         </Field>
-        <Field label="비밀번호">
-          {({ id, describedBy }) => (
+        <Field label="비밀번호" error={fieldError("password")}>
+          {({ id, describedBy, invalid }) => (
             <Input
               id={id}
               aria-describedby={describedBy}
+              aria-invalid={invalid}
               type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={touch("password")}
               required
             />
           )}

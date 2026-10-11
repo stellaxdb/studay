@@ -1,26 +1,28 @@
 "use client";
 
-import { MailCheck } from "lucide-react";
+import { Check, MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
 import { trackEvent } from "@/lib/analytics";
+import {
+  NAME_MAX,
+  normalizeEmail,
+  passwordChecks,
+  validateSignup,
+  type SignupErrors,
+  type SignupField,
+} from "@/lib/auth-validation";
 import { authCallbackUrl } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
 
-interface Errors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirm?: string;
-  form?: string;
-}
+type Errors = SignupErrors & { form?: string };
 
 export function SignupForm() {
   const router = useRouter();
@@ -28,29 +30,40 @@ export function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  // A field shows its error once the user has left it (or tried to submit),
+  // then updates live while they fix it.
+  const [touched, setTouched] = useState<Partial<Record<SignupField, boolean>>>({});
+  const [submitCount, setSubmitCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  function validate(): Errors {
-    const next: Errors = {};
-    if (name.trim().length > 30) next.name = "이름은 30자 이내로 입력해 주세요.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
-      next.email = "올바른 이메일 주소를 입력해 주세요.";
-    if (password.length < 8) next.password = "비밀번호는 8자 이상이어야 해요.";
-    if (confirm !== password) next.confirm = "비밀번호가 서로 달라요.";
-    return next;
+  const allErrors = validateSignup({ name, email, password, confirm });
+  const errors: Errors = { form: formError ?? undefined };
+  for (const field of Object.keys(allErrors) as SignupField[]) {
+    if (touched[field]) errors[field] = allErrors[field];
   }
+  const touch = (field: SignupField) => () => setTouched((t) => ({ ...t, [field]: true }));
+
+  // After a failed submit, move focus to the first field that needs fixing.
+  useEffect(() => {
+    if (submitCount === 0) return;
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [submitCount]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const found = validate();
-    setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    setFormError(null);
+    setTouched({ name: true, email: true, password: true, confirm: true });
+    if (Object.keys(allErrors).length > 0) {
+      setSubmitCount((n) => n + 1);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await getSupabase().auth.signUp({
-        email: email.trim(),
+        email: normalizeEmail(email),
         password,
         options: {
           data: { display_name: name.trim() || null },
@@ -58,7 +71,7 @@ export function SignupForm() {
         },
       });
       if (error) {
-        setErrors({ form: authErrorMessage(error) });
+        setFormError(authErrorMessage(error));
         return;
       }
       if (data.session) {
@@ -70,9 +83,9 @@ export function SignupForm() {
         router.refresh();
         return;
       }
-      setSentTo(email.trim());
+      setSentTo(normalizeEmail(email));
     } catch (err) {
-      setErrors({ form: authErrorMessage(err as Error) });
+      setFormError(authErrorMessage(err as Error));
     } finally {
       setLoading(false);
     }
@@ -109,10 +122,10 @@ export function SignupForm() {
       <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">회원가입</h1>
       <p className="text-fg-secondary mt-1 text-sm">과목, 할 일, 공부 시간을 한곳에서 관리해요.</p>
       <div className="mt-8">
-        <GoogleButton onError={(message) => setErrors({ form: message })} />
+        <GoogleButton onError={setFormError} />
       </div>
       <AuthDivider />
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <Field label="이름" optional error={errors.name} hint="홈 화면 인사에 사용돼요.">
           {({ id, describedBy, invalid }) => (
             <Input
@@ -121,8 +134,9 @@ export function SignupForm() {
               aria-invalid={invalid}
               autoComplete="nickname"
               value={name}
-              maxLength={30}
+              maxLength={NAME_MAX}
               onChange={(e) => setName(e.target.value)}
+              onBlur={touch("name")}
             />
           )}
         </Field>
@@ -137,20 +151,25 @@ export function SignupForm() {
               inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={touch("email")}
             />
           )}
         </Field>
-        <Field label="비밀번호" error={errors.password} hint="8자 이상">
+        <Field label="비밀번호" error={errors.password}>
           {({ id, describedBy, invalid }) => (
-            <Input
-              id={id}
-              aria-describedby={describedBy}
-              aria-invalid={invalid}
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <>
+              <Input
+                id={id}
+                aria-describedby={[`${id}-rules`, describedBy].filter(Boolean).join(" ")}
+                aria-invalid={invalid}
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={touch("password")}
+              />
+              <PasswordRules id={`${id}-rules`} password={password} />
+            </>
           )}
         </Field>
         <Field label="비밀번호 확인" error={errors.confirm}>
@@ -163,6 +182,7 @@ export function SignupForm() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              onBlur={touch("confirm")}
             />
           )}
         </Field>
@@ -185,5 +205,33 @@ export function SignupForm() {
         </Link>
       </p>
     </>
+  );
+}
+
+/** Live password requirements; met items get a check mark and "충족" text, not just color. */
+function PasswordRules({ id, password }: { id: string; password: string }) {
+  return (
+    <ul id={id} className="flex flex-wrap gap-x-3 gap-y-1 text-xs" aria-label="비밀번호 조건">
+      {passwordChecks(password).map((check) => (
+        <li
+          key={check.key}
+          className={
+            check.met
+              ? "text-success flex items-center gap-1"
+              : "text-fg-tertiary flex items-center gap-1"
+          }
+        >
+          {check.met ? (
+            <Check aria-hidden className="size-3.5" />
+          ) : (
+            <span aria-hidden className="inline-block size-3.5 text-center leading-3.5">
+              ·
+            </span>
+          )}
+          {check.label}
+          <span className="sr-only">{check.met ? " 충족" : " 미충족"}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
