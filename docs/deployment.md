@@ -74,28 +74,13 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 
 ### 수집하는 이벤트
 
-모든 커스텀 이벤트는 작업이 **실제로 저장된 뒤**에만 보냅니다. 버튼 클릭, 검증 실패, 저장 실패는 보내지 않습니다.
-
-| 이벤트                   | 시점                                                                          | 파라미터                                                                                                             |
-| ------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `page_view`              | 첫 로드(`config`) + 화면 이동(GA 향상된 측정)                                 | GA 기본값                                                                                                            |
-| `sign_up`                | 이메일 가입 완료(이메일 인증을 켠 경우 인증 링크를 연 시점), Google 첫 로그인 | `method`: `email`/`google`                                                                                           |
-| `login`                  | 이메일 로그인 성공, 기존 계정의 Google 로그인                                 | `method`                                                                                                             |
-| `study_session_start`    | 타이머 시작 성공(새로고침 복원 시에는 보내지 않음)                            | `with_todo`                                                                                                          |
-| `study_session_pause`    | 일시정지 성공. 같은 일시정지에 대한 재요청은 한 번만                          | `segment_seconds`(방금 이어서 공부한 시간), `elapsed_seconds`·`elapsed_minutes`(지금까지 공부한 시간, 일시정지 제외) |
-| `study_session_resume`   | 재개 성공. 같은 재개에 대한 재요청은 한 번만                                  | 없음                                                                                                                 |
-| `study_session_complete` | 종료·저장 성공. 세션당 한 번(재시도·중복 요청·새로고침에도 한 번)             | `duration_seconds`, `duration_minutes`, `with_todo`                                                                  |
-| `todo_create`            | 할 일 저장 성공                                                               | `priority`, `has_due_date`, `has_category`                                                                           |
-| `todo_complete`          | 미완료 → 완료로 실제 바뀐 경우(완료 취소는 제외)                              | 없음                                                                                                                 |
-| `subject_create`         | 과목 저장 성공                                                                | `has_weekly_goal`                                                                                                    |
-
-이름·이메일·할 일 제목·과목명·메모·ID는 보내지 않습니다. 파라미터는 `src/lib/analytics.ts`의 타입으로 제한됩니다. Google 로그인과 이메일 인증 링크는 서버(`/auth/callback`)에서 끝나므로 결과를 5분짜리 쿠키(`studay_auth_event`, 값 예: `login.google`)로 다음 화면에 넘기고, 브라우저가 한 번 보낸 뒤 바로 지웁니다.
+이벤트 목록, 보내는 시점, 파라미터, 중복 방지 규칙, GA 맞춤 정의 등록 목록은 [GA4 이벤트 명세](analytics.md)에 정리되어 있습니다. 요약하면 page_view는 GA가 자동으로 기록하고, 회원가입·로그인·과목/할 일 생성·할 일 완료·타이머 시작/일시정지/재개/종료는 작업이 실제로 저장된 뒤에만 한 번씩 보내며, 이름·이메일·제목 같은 개인정보는 보내지 않습니다.
 
 ### 확인하기
 
 - **실시간 보고서**: 배포 후 사이트를 열면 GA **보고서 > 실시간**에 1분 안팎으로 표시됩니다.
 - **DebugView**(관리 > DebugView): Chrome에서 [Tag Assistant](https://tagassistant.google.com/)로 사이트를 연결하거나, Preview·로컬에서 `NEXT_PUBLIC_GA_DEBUG=true`로 빌드하면 이벤트가 하나씩 보입니다.
-- 커스텀 파라미터(`with_todo`, `priority` 등)를 보고서에서 쓰려면 **관리 > 맞춤 정의 > 맞춤 측정기준 만들기**(범위: 이벤트)에 같은 이름으로 등록하세요. 등록 이후 데이터부터 집계됩니다.
+- 커스텀 파라미터를 보고서에서 쓰려면 GA 맞춤 정의에 등록해야 합니다. 등록할 목록은 [GA4 이벤트 명세 › GA 관리 화면 설정](analytics.md#ga-관리-화면-설정)을 참고하세요.
 - 이탈 지점 분석: **탐색 > 유입경로 탐색 분석**에 `sign_up → subject_create → todo_create → study_session_start → study_session_complete` 단계를 넣으면 어느 단계에서 사용자가 멈추는지 볼 수 있습니다.
 
 ### 로컬에서 테스트
