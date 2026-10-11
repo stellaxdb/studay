@@ -24,6 +24,8 @@ export interface Subject {
   color: string;
   weekly_goal_minutes: number;
   is_archived: boolean;
+  /** Manual order on the 과목 screen (0 = first). */
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }

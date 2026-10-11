@@ -14,23 +14,24 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { CategoryManager } from "@/components/subject/category-manager";
+import { SortableSubjectList } from "@/components/subject/sortable-subject-list";
 import { SubjectFormDialog } from "@/components/subject/subject-form-dialog";
 import { TodoFormDialog } from "@/components/todo/todo-form-dialog";
 import { TodoRow } from "@/components/todo/todo-row";
 import { Badge, ColorDot } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { cn } from "@/components/ui/cn";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Select } from "@/components/ui/field";
 import { ProgressBar } from "@/components/ui/progress";
 import { Segmented } from "@/components/ui/segmented";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import { useToast } from "@/components/ui/toast";
-import { deleteSubject, updateSubject } from "@/lib/data/mutations";
+import { deleteSubject, reorderSubjects, updateSubject } from "@/lib/data/mutations";
 import { useCategories, useStudyIntervals, useSubjects, useTodos } from "@/lib/data/queries";
 import { toUserMessage } from "@/lib/errors";
 import { useWeek } from "@/lib/hooks";
+import { mergeVisibleOrder } from "@/lib/order";
 import { aggregateStudy, sumBySubject } from "@/lib/stats";
 import { formatDuration } from "@/lib/time";
 import { filterTodos, progressOf, sortTodos } from "@/lib/todos";
@@ -83,6 +84,24 @@ export function SubjectsView() {
       categoryId: categoryFilter || null,
     }),
   );
+
+  const [reordering, setReordering] = useState(false);
+
+  async function saveOrder(visibleIds: string[]) {
+    setReordering(true);
+    try {
+      await reorderSubjects(
+        mergeVisibleOrder(
+          subjects.map((x) => x.id),
+          visibleIds,
+        ),
+      );
+    } catch (error) {
+      toast.error(toUserMessage(error, "순서를 저장하지 못했어요. 다시 시도해 주세요."));
+    } finally {
+      setReordering(false);
+    }
+  }
 
   async function toggleArchive(subject: Subject) {
     try {
@@ -158,44 +177,27 @@ export function SubjectsView() {
                 {showArchived ? "보관한 과목이 없어요." : "수강 중인 과목이 없어요."}
               </p>
             ) : (
-              <ul className="flex flex-col gap-0.5 p-2">
-                {visible.map((s) => {
-                  const p = progressOf(todos.filter((t) => t.subject_id === s.id));
-                  const isSelected = selected?.id === s.id;
-                  return (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        aria-current={isSelected ? "true" : undefined}
-                        onClick={() => {
-                          setSelectedId(s.id);
-                          setCategoryFilter("");
-                        }}
-                        className={cn(
-                          "flex w-full items-center gap-3 rounded-[var(--radius-control)] px-3 py-2.5 text-left transition-colors duration-150",
-                          isSelected ? "bg-primary-subtle" : "hover:bg-surface-subtle",
-                        )}
-                      >
-                        <ColorDot color={s.color} className="size-2.5" />
-                        <span className="min-w-0 flex-1">
-                          <span
-                            className={cn(
-                              "block truncate text-sm font-medium",
-                              isSelected ? "text-primary" : "text-fg",
-                            )}
-                          >
-                            {s.name}
-                          </span>
-                          <span className="tabular text-fg-secondary block text-xs">
-                            할 일 {p.done}/{p.total} · 이번 주{" "}
-                            {formatDuration(weekBySubject.get(s.id) ?? 0)}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              <>
+                <SortableSubjectList
+                  subjects={visible}
+                  selectedId={selected?.id ?? null}
+                  disabled={reordering}
+                  onSelect={(id) => {
+                    setSelectedId(id);
+                    setCategoryFilter("");
+                  }}
+                  meta={(subject) => {
+                    const p = progressOf(todos.filter((t) => t.subject_id === subject.id));
+                    return `할 일 ${p.done}/${p.total} · 이번 주 ${formatDuration(weekBySubject.get(subject.id) ?? 0)}`;
+                  }}
+                  onReorder={saveOrder}
+                />
+                {visible.length > 1 && (
+                  <p className="text-fg-tertiary px-4 pb-4 text-xs">
+                    왼쪽 손잡이를 끌어 순서를 바꿀 수 있어요.
+                  </p>
+                )}
+              </>
             )}
           </Card>
 

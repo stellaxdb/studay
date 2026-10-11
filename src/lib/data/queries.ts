@@ -45,6 +45,7 @@ export function useSubjects() {
     const { data, error } = await getSupabase()
       .from("subjects")
       .select("*")
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
     if (error) throw error;
     return data as Subject[];
