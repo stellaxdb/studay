@@ -57,7 +57,9 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
 }
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cn(CONTROL, width(className), "h-10 pr-8", className)} {...props} />;
+  return (
+    <select className={cn(CONTROL, width(className), "ui-select h-10", className)} {...props} />
+  );
 }
 
 export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
