@@ -2,7 +2,7 @@
 
 처음부터 직접 배포하거나, Supabase 프로젝트를 새로 만들거나, 인증 설정을 바꿀 때 보는 문서입니다. 운영 중인 서비스: [studay-three.vercel.app](https://studay-three.vercel.app/)
 
-순서: **1. Supabase DB → 2. 인증 설정 → 3. Vercel → 4. Google 로그인(선택)**
+순서: **1. Supabase DB → 2. 인증 설정 → 3. Vercel → 4. Google 로그인(필수)**
 
 ## 환경 변수
 
@@ -38,14 +38,13 @@ DB를 바꿀 때는 기존 파일을 수정하지 말고 새 마이그레이션 
 
 Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.vercel.app/auth/callback` 같은 와일드카드를 추가합니다.
 
-### 가입 방식: Google만 (기존 이메일 계정은 로그인 유지)
+### 로그인 방식: Google만
 
-새 계정은 **Google 로그인으로만** 만듭니다. Google이 이미 확인한 이메일이라 가짜 주소로 가입할 수 없고, 비밀번호·인증 메일·SMTP를 관리할 필요가 없습니다.
+studay는 **Google 로그인만** 사용합니다. Google이 확인한 이메일이라 가짜 주소로 가입할 수 없고, 비밀번호·인증 메일·SMTP를 관리할 필요가 없습니다. Google 설정은 [4. Google 로그인](#4-google-로그인)을 따르세요.
 
-- 회원가입 화면에는 "Google 계정으로 시작하기"만 있습니다.
-- 로그인 화면의 이메일 로그인은 **이메일로 가입한 기존 계정**을 위해 접힌 채로 남겨 둡니다. 기존 계정과 같은 이메일의 Google 계정으로 로그인하면 Supabase가 같은 사용자로 연결합니다.
-- Supabase에는 이메일 가입만 끄는 설정이 없습니다(전체 가입을 끄면 Google 신규 가입도 막힘). 화면을 거치지 않는 이메일 가입 요청까지 막으려면 DB 트리거가 필요합니다.
-- 위 이유로 **Confirm email**과 **Custom SMTP**는 설정하지 않아도 됩니다.
+- **Email 로그인 끄기 (필수)**: 화면에는 이메일 가입·로그인이 없지만 Supabase API로는 여전히 가능하므로, **Sign In / Providers > Email**을 꺼서(Enable Email provider 해제) 서버에서도 막습니다.
+- **예전 이메일 계정**: 같은 이메일의 Google 계정으로 로그인하면 Supabase가 같은 사용자로 연결해 기록이 이어집니다. Gmail이 아닌 주소로 가입한 계정은 더 이상 로그인할 수 없습니다.
+- 위 이유로 **Confirm email**, **Custom SMTP**, 비밀번호 규칙은 설정하지 않아도 됩니다.
 
 ## 3. Vercel
 
@@ -55,7 +54,7 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 
 `main`에 병합하면 프로덕션에, 작업 브랜치를 push하면 Preview로 자동 배포됩니다. `NEXT_PUBLIC_` 값을 바꾼 뒤에는 **Redeploy**해야 반영됩니다.
 
-## 4. Google 로그인 (선택)
+## 4. Google 로그인
 
 1. Supabase **Authentication > Sign In / Providers > Google**에서 **Callback URL**(`https://<ref>.supabase.co/auth/v1/callback`)을 복사합니다.
 2. [Google Cloud Console](https://console.cloud.google.com) > **Google Auth Platform**
