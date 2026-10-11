@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
 
@@ -43,6 +44,7 @@ export function LoginForm() {
         setError(authErrorMessage(signInError));
         return;
       }
+      await clearCache({ refetch: true });
       router.replace(safeNext(params.get("next")));
       router.refresh();
     } catch (err) {

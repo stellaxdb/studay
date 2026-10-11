@@ -32,7 +32,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const push = useCallback(
     (tone: ToastTone, message: string, action?: ToastItem["action"]) => {
       const id = nextId.current++;
-      setItems((list) => [...list.slice(-2), { id, tone, message, action }]);
+      // The same message replaces itself instead of stacking up.
+      setItems((list) => [
+        ...list.filter((t) => t.message !== message).slice(-1),
+        { id, tone, message, action },
+      ]);
       // Errors with a retry action stay until dismissed or used.
       if (!action) setTimeout(() => dismiss(id), tone === "error" ? 6000 : 3000);
     },

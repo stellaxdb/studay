@@ -22,7 +22,7 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={Math.min(value, max)}
-      className={cn("bg-surface-subtle h-1.5 w-full overflow-hidden rounded-full", className)}
+      className={cn("bg-border h-1.5 w-full overflow-hidden rounded-full", className)}
     >
       <div
         className="bg-primary h-full rounded-full transition-[width] duration-200"
