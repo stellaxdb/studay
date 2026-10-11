@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { EmailSuggestion } from "@/components/auth/email-suggestion";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -19,6 +20,8 @@ import {
 } from "@/lib/auth-validation";
 import { authCallbackUrl } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
+import { emailDomain, type Deliverability } from "@/lib/email-domain";
+import { checkEmailDomain } from "@/lib/email-domain-client";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
 
@@ -39,12 +42,33 @@ export function SignupForm() {
   const [sentTo, setSentTo] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
+  // Whether each email domain can receive mail (checked on the server via DNS).
+  const [domainStatus, setDomainStatus] = useState<Record<string, Deliverability | "checking">>({});
+
   const allErrors = validateSignup({ name, email, password, confirm });
+  const domain = emailDomain(email);
+  if (!allErrors.email && domainStatus[domain] === false) {
+    allErrors.email = `${domain}은(는) 메일을 받을 수 없는 도메인이에요. 주소를 확인해 주세요.`;
+  }
   const errors: Errors = { form: formError ?? undefined };
   for (const field of Object.keys(allErrors) as SignupField[]) {
     if (touched[field]) errors[field] = allErrors[field];
   }
   const touch = (field: SignupField) => () => setTouched((t) => ({ ...t, [field]: true }));
+
+  async function checkDomain(target: string): Promise<Deliverability> {
+    const known = domainStatus[target];
+    if (known === true || known === false) return known;
+    setDomainStatus((s) => ({ ...s, [target]: "checking" }));
+    const result = await checkEmailDomain(target);
+    setDomainStatus((s) => ({ ...s, [target]: result }));
+    return result;
+  }
+
+  function onEmailBlur() {
+    touch("email")();
+    if (!validateSignup({ name, email, password, confirm }).email) void checkDomain(domain);
+  }
 
   // After a failed submit, move focus to the first field that needs fixing.
   useEffect(() => {
@@ -62,6 +86,11 @@ export function SignupForm() {
     }
     setLoading(true);
     try {
+      // Unknown (DNS failed or slow) lets sign-up continue; only a definite "no" blocks.
+      if ((await checkDomain(domain)) === false) {
+        setSubmitCount((n) => n + 1);
+        return;
+      }
       const { data, error } = await getSupabase().auth.signUp({
         email: normalizeEmail(email),
         password,
@@ -140,19 +169,39 @@ export function SignupForm() {
             />
           )}
         </Field>
-        <Field label="이메일" error={errors.email}>
+        <Field
+          label="이메일"
+          error={errors.email}
+          hint={
+            domainStatus[domain] === "checking"
+              ? "메일을 받을 수 있는 주소인지 확인하고 있어요."
+              : undefined
+          }
+        >
           {({ id, describedBy, invalid }) => (
-            <Input
-              id={id}
-              aria-describedby={describedBy}
-              aria-invalid={invalid}
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={touch("email")}
-            />
+            <>
+              <Input
+                id={id}
+                aria-describedby={[describedBy, `${id}-suggestion`].filter(Boolean).join(" ")}
+                aria-invalid={invalid}
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={onEmailBlur}
+              />
+              {touched.email && (
+                <EmailSuggestion
+                  id={`${id}-suggestion`}
+                  email={email}
+                  onApply={(fixed) => {
+                    setEmail(fixed);
+                    void checkDomain(emailDomain(fixed));
+                  }}
+                />
+              )}
+            </>
           )}
         </Field>
         <Field label="비밀번호" error={errors.password}>

@@ -45,6 +45,8 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 | Minimum password length | `8`                                     |
 | Password Requirements   | `Letters and digits` (영문과 숫자 필수) |
 
+**이메일 도메인 확인**: 가입 화면은 도메인 형식과 흔한 오타(`naver.con` → `naver.com` 추천)를 브라우저에서 검사하고, 그 밖의 도메인은 `/api/email-domain`(Vercel 함수)이 DNS의 MX·A 레코드로 메일 수신 가능 여부를 확인합니다. 별도 설정은 필요 없습니다. DNS 조회가 실패하거나 3초 안에 끝나지 않으면 가입을 막지 않습니다. 메일함이 실제로 있는지는 이메일 인증(Confirm email)으로만 확인할 수 있습니다.
+
 이미 가입한 계정의 비밀번호는 바뀌지 않으며, 로그인 화면은 비밀번호 규칙을 다시 검사하지 않습니다(형식과 빈칸만 확인).
 
 **이메일 인증**: Supabase 기본 메일 서버는 발송량이 적은 테스트용입니다. 혼자 쓰거나 테스트할 때는 **Sign In / Providers > Email**에서 **Confirm email**을 끄면 가입 즉시 로그인됩니다. 여러 사람이 쓰게 하려면 Custom SMTP를 설정하세요.

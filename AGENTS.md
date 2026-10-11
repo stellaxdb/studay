@@ -251,7 +251,7 @@
 
 ### 폴더 구조
 
-- `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` 이메일 인증 처리
+- `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` 이메일 인증 처리, `src/app/api/email-domain/` 가입 이메일 도메인 DNS 확인(비로그인 허용, 조회 실패 시 가입을 막지 않음)
 - `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy)
 - `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 같은 이름의 `*.test.ts`, `src/test/` 테스트용 데이터 생성 함수, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지. 이벤트를 바꾸면 `docs/analytics.md`도 갱신), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
 - `src/components/ui/` 공통 UI, 그 외 `src/components/*` 도메인별 컴포넌트
