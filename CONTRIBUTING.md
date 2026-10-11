@@ -2,6 +2,22 @@
 
 혼자 작업하더라도 아래 규칙을 지키면 변경 이력을 추적하기 쉽고, `main`이 항상 배포 가능한 상태로 유지됩니다.
 
+## 0. 시작하기
+
+필요한 것: Node.js 20.9 이상(22 권장), Supabase 프로젝트([배포 가이드](docs/deployment.md) 1단계)
+
+```bash
+git clone https://github.com/stellaxdb/studay.git
+cd studay
+npm install                  # 커밋 훅(husky)도 함께 설치됩니다
+cp .env.example .env.local   # Supabase URL과 publishable key 입력
+npm run dev                  # http://localhost:3000
+```
+
+- 환경 변수 설명은 [배포 가이드 › 환경 변수](docs/deployment.md#환경-변수)를 참고하세요. `.env.local`은 커밋되지 않습니다.
+- 환경 변수가 없으면 앱은 오류 대신 "Supabase 연결이 필요해요" 안내 화면을 보여줍니다.
+- 로컬에서 로그인하려면 Supabase URL Configuration의 Redirect URLs에 `http://localhost:3000/auth/callback`이 있어야 합니다(이메일 인증·Google 로그인 사용 시).
+
 ## 1. 브랜치 전략 (GitHub Flow)
 
 | 브랜치            | 용도                                                       |

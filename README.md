@@ -82,32 +82,11 @@
 
 ---
 
-## 로컬에서 실행하기
+## 실행과 배포
 
-필요한 것: Node.js 20.9 이상(22 권장), Supabase 프로젝트([배포 가이드](docs/deployment.md))
-
-```bash
-git clone https://github.com/stellaxdb/studay.git
-cd studay
-npm install
-cp .env.example .env.local   # Supabase URL과 publishable key 입력
-npm run dev                  # http://localhost:3000
-```
-
-환경 변수가 없으면 앱은 오류 대신 "Supabase 연결이 필요해요" 안내 화면을 보여줍니다.
-
-| 환경 변수                              | 설명                                                                                                      |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL                                                                                     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 공개용 키(`sb_publishable_…`). 예전 프로젝트는 `NEXT_PUBLIC_SUPABASE_ANON_KEY`에 anon key를 넣어도 됩니다 |
-
-두 값 모두 브라우저에 공개되도록 설계된 값이며, 데이터 보호는 RLS가 담당합니다. 이 앱은 service_role·secret key를 쓰지 않으니 어떤 비밀 키도 `NEXT_PUBLIC_` 변수로 등록하지 마세요.
-
----
-
-## 배포
-
-서비스는 Vercel과 Supabase로 운영합니다. 직접 배포하거나 설정을 바꿀 때는 [배포 가이드](docs/deployment.md)를 참고하세요.
+- 서비스: [studay-three.vercel.app](https://studay-three.vercel.app/) (Vercel + Supabase)
+- 내 컴퓨터에서 실행하기: [CONTRIBUTING.md › 시작하기](CONTRIBUTING.md#0-시작하기)
+- 직접 배포하거나 인증 설정 바꾸기: [배포 가이드](docs/deployment.md)
 
 ---
 
@@ -177,4 +156,4 @@ docs/                    요구사항·디자인 시스템·구현 지침, 스�
 - [docs/design.md](docs/design.md) — 디자인 시스템
 - [docs/implementation-prompt.md](docs/implementation-prompt.md) — 구현·검증·배포 지침
 - [AGENTS.md](AGENTS.md) — AI 코딩 에이전트 작업 규칙
-- [CONTRIBUTING.md](CONTRIBUTING.md) — 브랜치·커밋·코드 컨벤션
+- [CONTRIBUTING.md](CONTRIBUTING.md) — 로컬 실행, 브랜치·커밋·코드 컨벤션
