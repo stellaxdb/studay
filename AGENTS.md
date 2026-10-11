@@ -2,7 +2,7 @@
 
 이 문서는 studay 저장소에서 작업하는 AI 코딩 에이전트(Cursor, Claude Code 등)를 위한 상시 개발 규칙이다. 아래 규칙을 매 작업에 적용한다.
 
-> 서비스 이름은 **studay**로 확정되었다. `docs/`의 요구사항 문서에 남아 있는 "Study Space"는 같은 서비스를 가리킨다.
+> 서비스 이름은 **studay**로 확정되었다. `docs/requirements/`의 요구사항 원문에 남아 있는 "Study Space"는 같은 서비스를 가리킨다.
 
 ## 1. 제품 목표와 작업 원칙
 
@@ -19,9 +19,9 @@
 작업 전 다음 문서를 읽는다.
 
 1. `AGENTS.md`: 모든 작업에 적용되는 개발 규칙
-2. `docs/study-space-prompt.md`: 제품 기능, 데이터, 보안, 수용 기준
+2. `docs/requirements/study-space-prompt.md`: 제품 기능, 데이터, 보안, 수용 기준
 3. `docs/design.md`: UI 디자인 시스템과 인터랙션 규칙
-4. `docs/implementation-prompt.md`: 구현·검증·배포 준비 지침
+4. `docs/requirements/implementation-prompt.md`: 구현·검증·배포 준비 지침
 5. 현재 저장소의 코드, 테스트, 마이그레이션: 이미 구현된 동작과 기술적 제약
 
 문서끼리 충돌하면 보안과 데이터 무결성을 최우선으로 하고, 그다음 `study-space-prompt.md`, `design.md`, 기존 구현 순서로 판단한다. 충돌을 조용히 숨기지 말고 최종 보고에 짧게 기록한다.
@@ -253,9 +253,10 @@
 
 - `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` 이메일 인증 처리
 - `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy)
-- `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 테스트, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지. 이벤트를 바꾸면 `docs/analytics.md`도 갱신), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
+- `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 같은 이름의 `*.test.ts`, `src/test/` 테스트용 데이터 생성 함수, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지. 이벤트를 바꾸면 `docs/analytics.md`도 갱신), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
 - `src/components/ui/` 공통 UI, 그 외 `src/components/*` 도메인별 컴포넌트
 - `supabase/migrations/` DB 스키마·RLS·타이머 함수, `scripts/test-db.mjs` DB 통합 테스트
+- `docs/requirements/` 처음 받은 요구사항 원문(수정하지 않음), `docs/design.md` 디자인 시스템, `docs/analytics.md` GA4 이벤트 명세, `docs/images/` README 스크린샷
 - `docs/deployment.md` 배포·인증(redirect URL, Google 로그인)·마이그레이션 적용 방법. 4.1·11절에서 README에 기록하라고 한 배포·인증 설정은 이 문서에 기록하고 README에서는 링크만 둔다
 
 ### 이미 정한 설계 (바꾸려면 사용자와 먼저 상의)

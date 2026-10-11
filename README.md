@@ -124,11 +124,19 @@ src/
 ├─ components/           ui/ 공통 컴포넌트, 그 외 기능별 컴포넌트
 ├─ lib/
 │  ├─ data/              Supabase 조회(queries)·변경(mutations)
-│  └─ *.ts               시간·타이머·할 일·통계 순수 로직과 테스트
+│  ├─ supabase/          브라우저·서버용 Supabase 클라이언트
+│  ├─ analytics.ts       GA4 이벤트
+│  └─ *.ts, *.test.ts    시간·타이머·할 일·통계 순수 로직과 같은 이름의 단위 테스트
+├─ test/                 테스트용 데이터 생성 함수
 └─ proxy.ts              세션 갱신, 비로그인 접근 차단
-supabase/migrations/     DB 스키마·RLS·타이머 함수
-scripts/test-db.mjs      DB 통합 테스트
-docs/                    요구사항·디자인 시스템·구현 지침, 스크린샷
+supabase/migrations/     DB 스키마·RLS·타이머 함수 (이름 순서대로 적용)
+scripts/                 DB 통합 테스트(test-db.mjs)와 Supabase 흉내 SQL
+docs/
+├─ deployment.md         배포·인증·GA 설정 가이드
+├─ analytics.md          GA4 이벤트 명세
+├─ design.md             디자인 시스템
+├─ requirements/         처음 받은 요구사항 원문
+└─ images/               README 스크린샷
 ```
 
 ### 데이터 삭제 정책
@@ -153,8 +161,8 @@ docs/                    요구사항·디자인 시스템·구현 지침, 스�
 
 - [docs/deployment.md](docs/deployment.md) — 배포·인증·Google Analytics 설정 가이드
 - [docs/analytics.md](docs/analytics.md) — GA4 이벤트 명세(시점·파라미터·중복 방지)
-- [docs/study-space-prompt.md](docs/study-space-prompt.md) — 제품 요구사항과 수용 기준
 - [docs/design.md](docs/design.md) — 디자인 시스템
-- [docs/implementation-prompt.md](docs/implementation-prompt.md) — 구현·검증·배포 지침
+- [docs/requirements/study-space-prompt.md](docs/requirements/study-space-prompt.md) — 제품 요구사항과 수용 기준(원문)
+- [docs/requirements/implementation-prompt.md](docs/requirements/implementation-prompt.md) — 구현·검증·배포 지침(원문)
 - [AGENTS.md](AGENTS.md) — AI 코딩 에이전트 작업 규칙
 - [CONTRIBUTING.md](CONTRIBUTING.md) — 로컬 실행, 브랜치·커밋·코드 컨벤션
