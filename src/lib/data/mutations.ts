@@ -1,7 +1,8 @@
 "use client";
 
+import { mutate } from "swr";
 import { getSupabase } from "@/lib/supabase/client";
-import type { EventType, Priority, StudySession, TodoStatus } from "@/lib/types";
+import type { EventType, Priority, StudySession, Subject, TodoStatus } from "@/lib/types";
 import { revalidate } from "./keys";
 
 // Every mutation throws on failure so the caller can keep the user's input
@@ -54,6 +55,32 @@ export async function updateSubject(
 ) {
   check(await getSupabase().from("subjects").update(input).eq("id", id));
   await revalidate("subjects");
+}
+
+/**
+ * Saves a new subject order (all subject ids, first to last). The list is
+ * updated immediately and rolled back by refetching if saving fails.
+ */
+export async function reorderSubjects(orderedIds: string[]) {
+  await mutate<Subject[]>(
+    ["subjects"],
+    (current) => {
+      if (!current) return current;
+      const byId = new Map(current.map((s) => [s.id, s]));
+      const ordered = orderedIds.flatMap((id, index) => {
+        const subject = byId.get(id);
+        return subject ? [{ ...subject, sort_order: index }] : [];
+      });
+      const rest = current.filter((s) => !orderedIds.includes(s.id));
+      return [...ordered, ...rest];
+    },
+    { revalidate: false },
+  );
+  try {
+    check(await getSupabase().rpc("reorder_subjects", { p_ids: orderedIds }));
+  } finally {
+    await revalidate("subjects");
+  }
 }
 
 export async function deleteSubject(id: string) {

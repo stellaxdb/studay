@@ -404,6 +404,42 @@ try {
     );
   });
 
+  await test("새 과목은 목록 끝에 추가되고, 순서 변경은 내 과목에만 적용된다", async () => {
+    const order = async (uid) =>
+      (await as(uid, (q) => q("select name, sort_order from subjects order by sort_order, name")))
+        .rows;
+    const before = await order(alice);
+    const added = await as(
+      alice,
+      async (q) => (await q("insert into subjects (name) values ('새 과목') returning *")).rows[0],
+    );
+    assert.equal(added.sort_order, Math.max(...before.map((r) => r.sort_order)) + 1);
+
+    const ids = (
+      await as(alice, (q) => q("select id from subjects order by sort_order desc"))
+    ).rows.map((r) => r.id);
+    const bobSubject = await as(
+      bob,
+      async (q) =>
+        (await q("insert into subjects (name) values ('밥의 과목') returning id, sort_order"))
+          .rows[0],
+    );
+    // Alice tries to include Bob's subject; it must be ignored.
+    await as(alice, (q) => q("select reorder_subjects($1::uuid[])", [[bobSubject.id, ...ids]]));
+    const after = await order(alice);
+    assert.equal(after[0].name, "새 과목");
+    assert.deepEqual(
+      after.map((r) => r.sort_order),
+      after.map((_, i) => i + 1),
+    );
+    const bobAfter = await as(bob, (q) =>
+      q("select sort_order from subjects where id = $1", [bobSubject.id]),
+    );
+    assert.equal(bobAfter.rows[0].sort_order, bobSubject.sort_order);
+    await as(alice, (q) => q("delete from subjects where id = $1", [added.id]));
+    await as(bob, (q) => q("delete from subjects where id = $1", [bobSubject.id]));
+  });
+
   await test("보관한 과목으로는 타이머를 시작할 수 없다", async () => {
     await as(alice, (q) => q("update subjects set is_archived = true where id = $1", [seed.db2]));
     await expectError(
