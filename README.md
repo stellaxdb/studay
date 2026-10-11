@@ -6,6 +6,8 @@
 
 `과목 등록 → 할 일·일정 배치 → 타이머로 공부 → 기록이 자동 집계 → 대시보드·캘린더·분석에서 확인`
 
+**서비스 바로가기 → [studay-three.vercel.app](https://studay-three.vercel.app/)**
+
 ![studay 대시보드](docs/images/dashboard.png)
 
 <sub>스크린샷은 예시 데이터로 촬영했습니다.</sub>
