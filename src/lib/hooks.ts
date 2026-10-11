@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useActiveSession, useSettings } from "@/lib/data/queries";
-import { dayKey } from "@/lib/time";
+import { addDaysToKey, dayKey, daysInRange, startOfDayKey, startOfWeekKey } from "@/lib/time";
 import { computeElapsedSeconds } from "@/lib/timer";
 
 function browserTimeZone() {
@@ -55,4 +55,19 @@ export function useActiveElapsed() {
   const now = useNow(session?.status === "running" ? 1000 : 60_000);
   const elapsed = session ? computeElapsedSeconds(session.study_segments, now + offset) : 0;
   return { ...query, session, elapsed };
+}
+
+/** Current week (per user setting) as day keys and an ISO [from, to) range. */
+export function useWeek() {
+  const timeZone = useTimeZone();
+  const today = useToday();
+  const { data: settings } = useSettings();
+  const start = startOfWeekKey(today, settings?.week_starts_on ?? 1);
+  return {
+    today,
+    timeZone,
+    days: daysInRange(start, 7),
+    from: startOfDayKey(start, timeZone).toISOString(),
+    to: startOfDayKey(addDaysToKey(start, 7), timeZone).toISOString(),
+  };
 }
