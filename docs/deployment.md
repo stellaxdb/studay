@@ -76,17 +76,18 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 
 모든 커스텀 이벤트는 작업이 **실제로 저장된 뒤**에만 보냅니다. 버튼 클릭, 검증 실패, 저장 실패는 보내지 않습니다.
 
-| 이벤트                   | 시점                                                                          | 파라미터                                            |
-| ------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------------- |
-| `page_view`              | 첫 로드(`config`) + 화면 이동(GA 향상된 측정)                                 | GA 기본값                                           |
-| `sign_up`                | 이메일 가입 완료(이메일 인증을 켠 경우 인증 링크를 연 시점), Google 첫 로그인 | `method`: `email`/`google`                          |
-| `login`                  | 이메일 로그인 성공, 기존 계정의 Google 로그인                                 | `method`                                            |
-| `study_session_start`    | 타이머 시작 성공(새로고침 복원 시에는 보내지 않음)                            | `with_todo`                                         |
-| `study_session_pause`    | 일시정지 성공. 같은 일시정지에 대한 재요청은 한 번만                          | 없음                                                |
-| `study_session_complete` | 종료·저장 성공. 세션당 한 번(재시도·중복 요청·새로고침에도 한 번)             | `duration_seconds`, `duration_minutes`, `with_todo` |
-| `todo_create`            | 할 일 저장 성공                                                               | `priority`, `has_due_date`, `has_category`          |
-| `todo_complete`          | 미완료 → 완료로 실제 바뀐 경우(완료 취소는 제외)                              | 없음                                                |
-| `subject_create`         | 과목 저장 성공                                                                | `has_weekly_goal`                                   |
+| 이벤트                   | 시점                                                                          | 파라미터                                                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `page_view`              | 첫 로드(`config`) + 화면 이동(GA 향상된 측정)                                 | GA 기본값                                                                                                            |
+| `sign_up`                | 이메일 가입 완료(이메일 인증을 켠 경우 인증 링크를 연 시점), Google 첫 로그인 | `method`: `email`/`google`                                                                                           |
+| `login`                  | 이메일 로그인 성공, 기존 계정의 Google 로그인                                 | `method`                                                                                                             |
+| `study_session_start`    | 타이머 시작 성공(새로고침 복원 시에는 보내지 않음)                            | `with_todo`                                                                                                          |
+| `study_session_pause`    | 일시정지 성공. 같은 일시정지에 대한 재요청은 한 번만                          | `segment_seconds`(방금 이어서 공부한 시간), `elapsed_seconds`·`elapsed_minutes`(지금까지 공부한 시간, 일시정지 제외) |
+| `study_session_resume`   | 재개 성공. 같은 재개에 대한 재요청은 한 번만                                  | 없음                                                                                                                 |
+| `study_session_complete` | 종료·저장 성공. 세션당 한 번(재시도·중복 요청·새로고침에도 한 번)             | `duration_seconds`, `duration_minutes`, `with_todo`                                                                  |
+| `todo_create`            | 할 일 저장 성공                                                               | `priority`, `has_due_date`, `has_category`                                                                           |
+| `todo_complete`          | 미완료 → 완료로 실제 바뀐 경우(완료 취소는 제외)                              | 없음                                                                                                                 |
+| `subject_create`         | 과목 저장 성공                                                                | `has_weekly_goal`                                                                                                    |
 
 이름·이메일·할 일 제목·과목명·메모·ID는 보내지 않습니다. 파라미터는 `src/lib/analytics.ts`의 타입으로 제한됩니다. Google 로그인과 이메일 인증 링크는 서버(`/auth/callback`)에서 끝나므로 결과를 5분짜리 쿠키(`studay_auth_event`, 값 예: `login.google`)로 다음 화면에 넘기고, 브라우저가 한 번 보낸 뒤 바로 지웁니다.
 
