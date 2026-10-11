@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { EmailSuggestion } from "@/components/auth/email-suggestion";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
 import { trackEvent } from "@/lib/analytics";
 import { safeNext } from "@/lib/auth-redirect";
@@ -82,18 +83,23 @@ export function LoginForm() {
       <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <Field label="이메일" error={fieldError("email")}>
           {({ id, describedBy, invalid }) => (
-            <Input
-              id={id}
-              aria-describedby={describedBy}
-              aria-invalid={invalid}
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={touch("email")}
-              required
-            />
+            <>
+              <Input
+                id={id}
+                aria-describedby={[describedBy, `${id}-suggestion`].filter(Boolean).join(" ")}
+                aria-invalid={invalid}
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={touch("email")}
+                required
+              />
+              {touched.email && (
+                <EmailSuggestion id={`${id}-suggestion`} email={email} onApply={setEmail} />
+              )}
+            </>
           )}
         </Field>
         <Field label="비밀번호" error={fieldError("password")}>

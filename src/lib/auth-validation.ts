@@ -3,6 +3,8 @@
 // Providers > Email) so they hold for requests that skip this UI; see
 // docs/deployment.md.
 
+import { emailDomain, isValidDomain } from "@/lib/email-domain";
+
 export const NAME_MAX = 30;
 export const PASSWORD_MIN = 8;
 /** Supabase (bcrypt) ignores bytes past 72, so longer passwords are rejected up front. */
@@ -10,7 +12,7 @@ export const PASSWORD_MAX_BYTES = 72;
 const EMAIL_MAX = 254;
 
 // Practical check, not full RFC 5322: one @, no spaces, a dot in the domain,
-// no leading/trailing/double dots.
+// no leading/trailing/double dots. The domain is then checked label by label.
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
 export function normalizeEmail(value: string): string {
@@ -22,6 +24,8 @@ export function validateEmail(value: string): string | null {
   if (!email) return "이메일을 입력해 주세요.";
   if (email.length > EMAIL_MAX || !EMAIL_RE.test(email) || email.includes(".."))
     return "올바른 이메일 주소를 입력해 주세요. 예: name@example.com";
+  if (!isValidDomain(emailDomain(email)))
+    return "@ 뒤의 도메인을 확인해 주세요. 예: gmail.com, naver.com";
   return null;
 }
 
