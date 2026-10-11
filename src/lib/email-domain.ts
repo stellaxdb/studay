@@ -1,8 +1,7 @@
-// Checks for the part of an email address after "@": format, likely typos of
-// common providers, and (via /api/email-domain) whether it can receive mail.
-// Pure functions only, shared by the browser, the route handler and tests.
+// Checks for the part of an email address after "@": format and likely typos
+// of common providers. Pure functions, used by the login form and tests.
 
-/** Domains people commonly use here. Known to receive mail, so no DNS lookup is needed. */
+/** Domains people commonly use here; typo suggestions point to these. */
 export const COMMON_DOMAINS = [
   "gmail.com",
   "naver.com",
@@ -124,69 +123,4 @@ export function suggestDomain(domain: string): string | null {
 export function withDomain(email: string, domain: string): string {
   const trimmed = email.trim();
   return `${trimmed.slice(0, trimmed.lastIndexOf("@") + 1)}${domain}`;
-}
-
-// ---------------------------------------------------------------------------
-// Mail server lookup (used by the route handler with Node's DNS resolver)
-// ---------------------------------------------------------------------------
-
-export interface MailDnsResolver {
-  resolveMx(domain: string): Promise<{ exchange: string; priority: number }[]>;
-  resolve4(domain: string): Promise<string[]>;
-  resolve6(domain: string): Promise<string[]>;
-}
-
-/** true: can receive mail, false: cannot, null: unknown (lookup failed — do not block). */
-export type Deliverability = boolean | null;
-
-const NO_RECORD = new Set(["ENODATA", "ENOTFOUND", "ENONAME", "NXDOMAIN"]);
-
-function code(error: unknown): string {
-  return (error as { code?: string })?.code ?? "";
-}
-
-/**
- * Decides whether a domain accepts mail: MX records (RFC 5321), a "null MX"
- * meaning "no mail" (RFC 7505), or — with no MX — an A/AAAA record, which
- * mail servers fall back to. DNS failures other than "no such record" — and
- * "not found" answers from a resolver that can't find gmail.com either —
- * return null so a broken resolver never blocks sign-up.
- */
-export async function checkMailDomain(
-  domain: string,
-  dns: MailDnsResolver,
-): Promise<Deliverability> {
-  if (!isValidDomain(domain)) return false;
-  if (isCommonDomain(domain)) return true;
-  const result = await lookupMailDomain(domain, dns);
-  if (result !== false) return result;
-  // A broken resolver answers "not found" for everything. Only trust "no" if a
-  // domain that certainly exists still resolves.
-  try {
-    return (await dns.resolveMx(RESOLVER_CANARY)).length > 0 ? false : null;
-  } catch {
-    return null;
-  }
-}
-
-const RESOLVER_CANARY = "gmail.com";
-
-async function lookupMailDomain(domain: string, dns: MailDnsResolver): Promise<Deliverability> {
-  try {
-    const mx = await dns.resolveMx(domain);
-    const usable = mx.filter((r) => r.exchange && r.exchange !== ".");
-    if (usable.length > 0) return true;
-    if (mx.length > 0) return false; // null MX: the domain says it takes no mail
-  } catch (error) {
-    if (!NO_RECORD.has(code(error))) return null;
-    if (code(error) === "ENOTFOUND" || code(error) === "NXDOMAIN") return false;
-  }
-  for (const lookup of [dns.resolve4, dns.resolve6]) {
-    try {
-      if ((await lookup.call(dns, domain)).length > 0) return true;
-    } catch (error) {
-      if (!NO_RECORD.has(code(error))) return null;
-    }
-  }
-  return false;
 }

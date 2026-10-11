@@ -1,10 +1,5 @@
 import { useId } from "react";
-import type {
-  InputHTMLAttributes,
-  ReactNode,
-  SelectHTMLAttributes,
-  TextareaHTMLAttributes,
-} from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "./cn";
 
 const CONTROL =
@@ -52,17 +47,17 @@ function width(className?: string) {
   return /(^|\s)w-/.test(className ?? "") ? "" : "w-full";
 }
 
-export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(CONTROL, width(className), "h-10", className)} {...props} />;
 }
 
-export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+export function Select({ className, ...props }: ComponentProps<"select">) {
   return (
     <select className={cn(CONTROL, width(className), "ui-select h-10", className)} {...props} />
   );
 }
 
-export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return (
     <textarea className={cn(CONTROL, width(className), "min-h-20 py-2", className)} {...props} />
   );

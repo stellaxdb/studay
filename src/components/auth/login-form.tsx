@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -7,7 +8,7 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { EmailSuggestion } from "@/components/auth/email-suggestion";
-import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { GoogleButton } from "@/components/auth/google-button";
 import { ResendConfirmation } from "@/components/auth/resend-confirmation";
 import { trackEvent } from "@/lib/analytics";
 import { safeNext } from "@/lib/auth-redirect";
@@ -31,6 +32,10 @@ export function LoginForm() {
     return null;
   });
   const [loading, setLoading] = useState(false);
+  // New accounts use Google; email login is kept, folded away, for accounts
+  // created with email before. It starts open when an email link failed.
+  const [showEmail, setShowEmail] = useState(() => params.get("error") === "confirm");
+  const emailRef = useRef<HTMLInputElement>(null);
   // Set when login fails because the email isn't confirmed yet.
   const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
   const [touched, setTouched] = useState<Partial<Record<LoginField, boolean>>>({});
@@ -84,57 +89,92 @@ export function LoginForm() {
       <div className="mt-8">
         <GoogleButton next={params.get("next")} onError={setError} />
       </div>
-      <AuthDivider />
-      <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-        <Field label="이메일" error={fieldError("email")}>
-          {({ id, describedBy, invalid }) => (
-            <>
+      {!showEmail && error && (
+        <p
+          role="alert"
+          className="bg-danger-subtle text-danger mt-4 rounded-[var(--radius-control)] px-3 py-2.5 text-sm"
+        >
+          {error}
+        </p>
+      )}
+      <div className="border-border mt-8 border-t pt-5">
+        <button
+          type="button"
+          aria-expanded={showEmail}
+          aria-controls="email-login"
+          onClick={() => {
+            const next = !showEmail;
+            setShowEmail(next);
+            if (next) requestAnimationFrame(() => emailRef.current?.focus());
+          }}
+          className="text-fg-secondary hover:text-fg flex min-h-10 w-full items-center justify-between rounded-md text-left text-sm font-medium"
+        >
+          이메일로 가입한 기존 계정으로 로그인
+          <ChevronDown
+            aria-hidden
+            className={`size-4 transition-transform duration-150 motion-reduce:transition-none ${showEmail ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+      {showEmail && (
+        <form
+          id="email-login"
+          ref={formRef}
+          onSubmit={onSubmit}
+          noValidate
+          className="mt-4 flex flex-col gap-4"
+        >
+          <Field label="이메일" error={fieldError("email")}>
+            {({ id, describedBy, invalid }) => (
+              <>
+                <Input
+                  ref={emailRef}
+                  id={id}
+                  aria-describedby={[describedBy, `${id}-suggestion`].filter(Boolean).join(" ")}
+                  aria-invalid={invalid}
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={touch("email")}
+                  required
+                />
+                {touched.email && (
+                  <EmailSuggestion id={`${id}-suggestion`} email={email} onApply={setEmail} />
+                )}
+              </>
+            )}
+          </Field>
+          <Field label="비밀번호" error={fieldError("password")}>
+            {({ id, describedBy, invalid }) => (
               <Input
                 id={id}
-                aria-describedby={[describedBy, `${id}-suggestion`].filter(Boolean).join(" ")}
+                aria-describedby={describedBy}
                 aria-invalid={invalid}
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={touch("email")}
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={touch("password")}
                 required
               />
-              {touched.email && (
-                <EmailSuggestion id={`${id}-suggestion`} email={email} onApply={setEmail} />
-              )}
-            </>
+            )}
+          </Field>
+          {error && (
+            <p
+              role="alert"
+              className="bg-danger-subtle text-danger rounded-[var(--radius-control)] px-3 py-2.5 text-sm"
+            >
+              {error}
+            </p>
           )}
-        </Field>
-        <Field label="비밀번호" error={fieldError("password")}>
-          {({ id, describedBy, invalid }) => (
-            <Input
-              id={id}
-              aria-describedby={describedBy}
-              aria-invalid={invalid}
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onBlur={touch("password")}
-              required
-            />
-          )}
-        </Field>
-        {error && (
-          <p
-            role="alert"
-            className="bg-danger-subtle text-danger rounded-[var(--radius-control)] px-3 py-2.5 text-sm"
-          >
-            {error}
-          </p>
-        )}
-        {unconfirmed && <ResendConfirmation email={unconfirmed} next={params.get("next")} />}
-        <Button type="submit" loading={loading} className="mt-2 h-11">
-          로그인
-        </Button>
-      </form>
+          {unconfirmed && <ResendConfirmation email={unconfirmed} next={params.get("next")} />}
+          <Button type="submit" loading={loading} className="mt-2 h-11">
+            이메일로 로그인
+          </Button>
+        </form>
+      )}
       <p className="text-fg-secondary mt-6 text-center text-sm">
         아직 계정이 없나요?{" "}
         <Link href="/signup" className="text-primary font-semibold hover:underline">

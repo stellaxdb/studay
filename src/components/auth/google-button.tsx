@@ -14,9 +14,11 @@ import { getSupabase } from "@/lib/supabase/client";
 export function GoogleButton({
   next,
   onError,
+  label = "Google 계정으로 계속하기",
 }: {
   next?: string | null;
   onError: (message: string) => void;
+  label?: string;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -40,17 +42,7 @@ export function GoogleButton({
 
   return (
     <Button variant="secondary" className="h-11 w-full" loading={loading} onClick={signIn}>
-      Google 계정으로 계속하기
+      {label}
     </Button>
-  );
-}
-
-export function AuthDivider() {
-  return (
-    <div className="text-fg-tertiary my-6 flex items-center gap-3 text-xs" role="separator">
-      <span className="bg-border h-px flex-1" aria-hidden />
-      또는 이메일로
-      <span className="bg-border h-px flex-1" aria-hidden />
-    </div>
   );
 }
