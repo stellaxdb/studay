@@ -170,7 +170,7 @@ export function FocusView() {
                 {session.status === "running" ? "공부 중" : "일시정지됨"}
               </p>
               <p
-                className="tabular text-fg mt-6 text-5xl font-bold tracking-tight sm:text-6xl"
+                className="tabular text-fg mt-6 text-6xl font-extrabold tracking-[-0.04em] sm:text-7xl"
                 aria-label={`경과 시간 ${formatDuration(active.elapsed)}`}
               >
                 {formatClock(active.elapsed)}
@@ -276,7 +276,7 @@ export function FocusView() {
                 );
               }}
             >
-              <p className="tabular text-fg-tertiary py-4 text-center text-5xl font-bold tracking-tight sm:text-6xl">
+              <p className="tabular text-fg-tertiary py-4 text-center text-6xl font-extrabold tracking-[-0.04em] sm:text-7xl">
                 00:00:00
               </p>
               <Field label="과목">
@@ -325,7 +325,7 @@ export function FocusView() {
         <div className="flex flex-col gap-6">
           <Card className="p-5">
             <p className="text-fg-secondary text-sm font-medium">오늘 기록한 공부 시간</p>
-            <p className="tabular mt-1 text-2xl font-bold">
+            <p className="tabular mt-1 text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
               {todayIntervals.error ? "—" : formatDuration(todaySeconds)}
             </p>
             <p className="text-fg-tertiary mt-1 text-xs">
@@ -360,7 +360,7 @@ export function FocusView() {
                     {formatDuration(list.reduce((sum, s) => sum + s.total_seconds, 0))}
                   </span>
                 </h3>
-                <ul className="divide-border border-border divide-y rounded-[var(--radius-control)] border">
+                <ul className="divide-border bg-surface divide-y rounded-[var(--radius-control)]">
                   {list.map((s) => {
                     const subj = subjectMap.get(s.subject_id);
                     return (

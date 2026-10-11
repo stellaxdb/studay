@@ -43,7 +43,7 @@ function ActiveTimerCard({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       href="/focus"
       onClick={onNavigate}
-      className="border-border bg-surface hover:border-border-strong mx-3 mb-3 block rounded-[var(--radius-control)] border px-3 py-2.5"
+      className="bg-card hover:bg-surface-subtle mx-3 mb-3 block rounded-[var(--radius-card)] px-4 py-3"
     >
       <span className="text-fg-secondary flex items-center gap-1.5 text-xs font-medium">
         <span

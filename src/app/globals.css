@@ -1,20 +1,23 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------------
- * studay design tokens (see design.md)
- * Neutral surfaces, one restrained accent, borders instead of shadows.
+ * studay design tokens (see docs/design.md)
+ * White canvas, borderless gray cards, one purple accent, no decorative shadow.
  * --------------------------------------------------------------------- */
 :root {
-  --background: #f7f8fa;
+  --background: #ffffff;
+  /* Section/card surface on the white canvas */
+  --card: #f2f4f6;
+  /* Raised controls and blocks (inputs, dialogs, white rows inside cards) */
   --surface: #ffffff;
-  --surface-subtle: #f2f4f7;
+  /* Hover fills, segmented tracks */
+  --surface-subtle: #e8ebee;
   --border: #e5e8eb;
-  --border-strong: #d5d9de;
+  --border-strong: #d1d6db;
 
   --text-primary: #191f28;
-  --text-secondary: #6b7684;
-  /* Darkened from #8B95A1 so helper text keeps 4.5:1 contrast on white. */
-  --text-tertiary: #6f7a87;
+  --text-secondary: #4e5968;
+  --text-tertiary: #6b7684;
 
   --primary: #6c5ce7;
   --primary-hover: #5b4bd8;
@@ -32,6 +35,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-card: var(--card);
   --color-surface: var(--surface);
   --color-surface-subtle: var(--surface-subtle);
   --color-border: var(--border);
@@ -58,8 +62,9 @@
     "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 
-  --radius-control: 10px;
-  --radius-card: 14px;
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-dialog: 24px;
 }
 
 html {
@@ -71,6 +76,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-feature-settings: "ss06";
+  font-weight: 500;
   letter-spacing: -0.01em;
 }
 

@@ -57,7 +57,7 @@ export function LoginForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold tracking-tight">로그인</h1>
+      <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">로그인</h1>
       <p className="text-fg-secondary mt-1 text-sm">오늘 할 공부를 이어서 관리해 보세요.</p>
       <div className="mt-8">
         <GoogleButton next={params.get("next")} onError={setError} />

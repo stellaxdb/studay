@@ -103,7 +103,7 @@ export function SignupForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold tracking-tight">회원가입</h1>
+      <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">회원가입</h1>
       <p className="text-fg-secondary mt-1 text-sm">과목, 할 일, 공부 시간을 한곳에서 관리해요.</p>
       <div className="mt-8">
         <GoogleButton onError={(message) => setErrors({ form: message })} />

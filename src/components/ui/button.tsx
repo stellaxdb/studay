@@ -8,13 +8,13 @@ type Size = "md" | "sm" | "icon" | "icon-sm";
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-primary text-white hover:bg-primary-hover disabled:bg-primary/50",
   secondary:
-    "bg-surface text-fg border border-border-strong hover:bg-surface-subtle disabled:text-fg-tertiary",
+    "bg-surface text-fg border border-border hover:bg-surface-subtle disabled:text-fg-tertiary",
   tertiary: "text-fg-secondary hover:bg-surface-subtle hover:text-fg disabled:text-fg-tertiary",
   danger: "bg-danger text-white hover:bg-danger/90 disabled:bg-danger/50",
 };
 
 const SIZES: Record<Size, string> = {
-  md: "h-10 px-4 text-sm gap-1.5",
+  md: "h-10 px-5 text-sm gap-1.5",
   sm: "h-8 px-3 text-sm gap-1",
   icon: "size-10",
   "icon-sm": "size-8",
@@ -28,7 +28,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export function buttonClasses(variant: Variant = "primary", size: Size = "md", className?: string) {
   return cn(
-    "inline-flex shrink-0 items-center justify-center rounded-[var(--radius-control)] font-semibold whitespace-nowrap transition-colors duration-150 disabled:cursor-not-allowed",
+    "inline-flex shrink-0 items-center justify-center rounded-full font-semibold whitespace-nowrap transition-colors duration-150 disabled:cursor-not-allowed",
     VARIANTS[variant],
     SIZES[size],
     className,

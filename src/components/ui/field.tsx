@@ -8,7 +8,7 @@ import type {
 import { cn } from "./cn";
 
 const CONTROL =
-  "w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-sm text-fg placeholder:text-fg-tertiary transition-colors duration-150 hover:border-fg-tertiary focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-0 disabled:bg-surface-subtle disabled:text-fg-tertiary aria-[invalid=true]:border-danger";
+  "rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 text-sm text-fg placeholder:text-fg-tertiary transition-colors duration-150 hover:border-fg-tertiary focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-0 disabled:bg-surface-subtle disabled:text-fg-tertiary aria-[invalid=true]:border-danger";
 
 export interface FieldProps {
   label: string;
@@ -47,14 +47,21 @@ export function Field({ label, optional, hint, error, className, children }: Fie
   );
 }
 
+/** Full width unless the caller sets its own width (w-*). */
+function width(className?: string) {
+  return /(^|\s)w-/.test(className ?? "") ? "" : "w-full";
+}
+
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={cn(CONTROL, "h-10", className)} {...props} />;
+  return <input className={cn(CONTROL, width(className), "h-10", className)} {...props} />;
 }
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cn(CONTROL, "h-10 pr-8", className)} {...props} />;
+  return <select className={cn(CONTROL, width(className), "h-10 pr-8", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cn(CONTROL, "min-h-20 py-2", className)} {...props} />;
+  return (
+    <textarea className={cn(CONTROL, width(className), "min-h-20 py-2", className)} {...props} />
+  );
 }

@@ -110,7 +110,7 @@ export function DashboardView() {
       {active.session && (
         <Link
           href="/focus"
-          className="border-primary/30 bg-primary-subtle hover:border-primary/50 mb-6 flex items-center justify-between gap-4 rounded-[var(--radius-card)] border px-5 py-4"
+          className="bg-primary-subtle hover:bg-primary-subtle/70 mb-6 flex items-center justify-between gap-4 rounded-[var(--radius-card)] px-6 py-5"
         >
           <span className="min-w-0">
             <span className="text-primary block text-sm font-semibold">
@@ -122,7 +122,7 @@ export function DashboardView() {
             </span>
           </span>
           <span className="flex items-center gap-2">
-            <span className="tabular text-fg text-2xl font-bold">
+            <span className="tabular text-fg text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
               {formatClock(active.elapsed)}
             </span>
             <ArrowRight aria-hidden className="text-primary size-5" />
@@ -306,11 +306,11 @@ function Metric({
   progress?: { value: number; max: number; label: string };
 }) {
   return (
-    <div className="border-border bg-surface rounded-[var(--radius-card)] border p-4 lg:p-5">
+    <div className="bg-card rounded-[var(--radius-card)] p-5 lg:p-6">
       <p className="text-fg-secondary text-sm font-medium">{label}</p>
       <p
         className={cn(
-          "tabular mt-1.5 text-xl font-bold tracking-tight lg:text-2xl",
+          "tabular mt-2 text-[26px] leading-tight font-extrabold tracking-[-0.03em] lg:text-[30px]",
           tone === "danger" ? "text-danger" : "text-fg",
         )}
       >
