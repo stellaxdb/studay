@@ -1,0 +1,7 @@
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$branch" = "main" ]; then
+  echo "✖ main 브랜치에 직접 커밋할 수 없어요. 작업 브랜치(feat/…, fix/… 등)를 만들어 주세요."
+  echo "  예) git switch -c feat/my-change"
+  exit 1
+fi
+npx lint-staged
