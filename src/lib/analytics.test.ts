@@ -65,8 +65,17 @@ describe("with a measurement ID", () => {
     expect(sent.filter((c) => c[0] === "js")).toHaveLength(1);
     expect(sent.map((c) => c[0])).toEqual(["js", "config", "event"]);
     expect(sent[2]).toEqual(["event", "login", { method: "email" }]);
+    // Exactly like Google's snippet: gtag.js throws on an undefined parameters argument.
+    expect(sent[1]).toEqual(["config", "G-TEST123"]);
     // page_view is left to GA4 itself so it can't be sent twice.
     expect(sent.some((c) => c[1] === "page_view")).toBe(false);
+  });
+
+  it("adds debug_mode only when NEXT_PUBLIC_GA_DEBUG is true", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GA_DEBUG", "true");
+    const { a, win } = await load("G-TEST123");
+    a.initAnalytics();
+    expect(commands(win)[1]).toEqual(["config", "G-TEST123", { debug_mode: true }]);
   });
 
   it("initialises on the first event even before the tag component mounts", async () => {

@@ -64,11 +64,12 @@ export function initAnalytics(): boolean {
     };
   }
   window.gtag("js", new Date());
-  window.gtag(
-    "config",
-    id,
-    process.env.NEXT_PUBLIC_GA_DEBUG === "true" ? { debug_mode: true } : undefined,
-  );
+  // Never pass an undefined third argument: gtag.js throws on it and stops.
+  if (process.env.NEXT_PUBLIC_GA_DEBUG === "true") {
+    window.gtag("config", id, { debug_mode: true });
+  } else {
+    window.gtag("config", id);
+  }
   window.__studayGaId = id;
   return true;
 }
