@@ -1,5 +1,22 @@
 # Study Space --- Design System
 
+> **Revision (2026-10-11, studay)** — The visual language follows a Toss-inspired
+> structure adapted for a desktop web app, while keeping studay's own purple accent:
+>
+> - White canvas (`#FFFFFF`) with **borderless light-gray cards** (`#F7F8FA`); white blocks
+>   (inputs, rows, stat boxes) sit inside cards when they need separation.
+> - Larger radii: cards 16px, inputs 12px, dialogs 24px, **pill-shaped buttons**.
+> - Key numbers are the hero of a card: 26–30px, weight 800, tight tracking. One
+>   number per metric card; explanation below in secondary gray.
+> - Secondary text `#4E5968`, tertiary `#6B7684`; body weight 500.
+> - One primary (purple) button per screen region; other actions are white
+>   outlined or text buttons.
+> - Desktop-first layout with a persistent sidebar is kept. Mobile-only patterns
+>   (bottom-fixed CTA) are not used. No Toss logos, slogans, colors-as-identity,
+>   or exact screens are copied, and no affiliation is implied.
+>
+> Where this note conflicts with older sections below, this note wins.
+
 ## 1. Design Intent
 
 Study Space is a personal study planner for university students. The
@@ -94,15 +111,16 @@ adjust for contrast.
 
 ``` css
 :root {
-  --background: #F7F8FA;
-  --surface: #FFFFFF;
-  --surface-subtle: #F2F4F7;
+  --background: #FFFFFF;       /* canvas */
+  --card: #F7F8FA;             /* borderless section cards */
+  --surface: #FFFFFF;          /* inputs, dialogs, white blocks inside cards */
+  --surface-subtle: #EEF0F3;   /* hover fills, segmented tracks */
   --border: #E5E8EB;
-  --border-strong: #D5D9DE;
+  --border-strong: #D1D6DB;
 
   --text-primary: #191F28;
-  --text-secondary: #6B7684;
-  --text-tertiary: #8B95A1;
+  --text-secondary: #4E5968;
+  --text-tertiary: #6B7684;
 
   --primary: #6C5CE7;
   --primary-hover: #5B4BD8;
@@ -121,8 +139,9 @@ adjust for contrast.
 
 ### Color usage
 
--   Background: very light neutral gray, not pure gray.
--   Main content surfaces: white.
+-   Background: white canvas.
+-   Content cards: light gray (`--card`), no border. White blocks inside cards
+    for inputs, list rows, and stat boxes.
 -   Primary accent: use for the main action, selected navigation, active
     timer, and selected date.
 -   Success: completed tasks and successful actions.
@@ -183,9 +202,10 @@ metrics at once.
 
 ### Cards
 
--   Use white surfaces against a subtle neutral background.
--   Suggested radius: 12--16px for cards; 8--12px for controls.
--   Use 1px subtle borders when a card needs a clear boundary.
+-   Use borderless light-gray cards on the white canvas.
+-   Radius: 16px for cards, 12px for inputs and inner blocks, 24px for dialogs,
+    fully rounded (pill) buttons.
+-   Do not add borders to cards; separate by surface color and spacing.
 -   Use padding around 16--24px depending on density.
 -   Avoid nesting cards inside cards unless there is a strong
     information-architecture reason.

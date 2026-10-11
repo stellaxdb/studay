@@ -35,7 +35,7 @@ export function Segmented<T extends string>({
       role="radiogroup"
       aria-label={label}
       className={cn(
-        "bg-surface-subtle inline-flex max-w-full overflow-x-auto rounded-[var(--radius-control)] p-1",
+        "bg-surface-subtle inline-flex max-w-full overflow-x-auto rounded-full p-1",
         className,
       )}
     >
@@ -54,10 +54,10 @@ export function Segmented<T extends string>({
             onClick={() => onChange(opt.value)}
             onKeyDown={(e) => onKeyDown(e, i)}
             className={cn(
-              "rounded-lg font-medium whitespace-nowrap transition-colors duration-150",
+              "rounded-full font-semibold whitespace-nowrap transition-colors duration-150",
               size === "sm" ? "h-7 px-2.5 text-xs" : "h-8 px-3 text-sm",
               selected
-                ? "border-border bg-surface text-fg border"
+                ? "bg-surface text-fg border border-transparent"
                 : "text-fg-secondary hover:text-fg border border-transparent",
             )}
           >

@@ -155,13 +155,15 @@ export function AnalyticsView() {
                   <dl className="mb-5 flex flex-wrap gap-x-8 gap-y-2">
                     <div>
                       <dt className="text-fg-secondary text-xs">총 공부 시간</dt>
-                      <dd className="tabular text-2xl font-bold">{formatDuration(total)}</dd>
+                      <dd className="tabular text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
+                        {formatDuration(total)}
+                      </dd>
                     </div>
                     <div>
                       <dt className="text-fg-secondary text-xs">
                         {period === "7d" ? "하루 평균" : "주 평균"}
                       </dt>
-                      <dd className="tabular text-2xl font-bold">
+                      <dd className="tabular text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
                         {formatDuration(total / buckets.length)}
                       </dd>
                     </div>
@@ -219,11 +221,13 @@ export function AnalyticsView() {
               <dl className="mb-5 grid grid-cols-2 gap-4">
                 <div>
                   <dt className="text-fg-secondary text-xs">완료한 할 일</dt>
-                  <dd className="tabular text-2xl font-bold">{completedTotal}개</dd>
+                  <dd className="tabular text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
+                    {completedTotal}개
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-fg-secondary text-xs">기간 내 마감 할 일 완료율</dt>
-                  <dd className="tabular text-2xl font-bold">
+                  <dd className="tabular text-[28px] leading-tight font-extrabold tracking-[-0.03em]">
                     {dueRate.percent === null ? "—" : `${dueRate.percent}%`}
                   </dd>
                   <dd className="tabular text-fg-secondary text-xs">

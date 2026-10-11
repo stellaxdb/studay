@@ -434,7 +434,7 @@ function SubjectStat({
   progressLabel: string;
 }) {
   return (
-    <div className="bg-surface-subtle rounded-[var(--radius-control)] px-4 py-3">
+    <div className="bg-surface rounded-[var(--radius-control)] px-4 py-3.5">
       <dt className="text-fg-secondary text-xs font-medium">{label}</dt>
       <dd className="tabular text-fg mt-1 text-sm font-semibold">{value}</dd>
       {progress !== null && (

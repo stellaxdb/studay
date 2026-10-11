@@ -69,7 +69,7 @@ export const config = {
     {
       // Skip static files, images and metadata files.
       source:
-        "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)",
       // Only full page loads go through the proxy. Client-router (RSC) requests
       // fetch static page shells without personal data (all data is loaded in
       // the browser and protected by RLS), and the app shell redirects

@@ -101,7 +101,7 @@ export function CategoryManager({
           카테고리로 할 일을 나눠 보세요. 예: 과제, 시험 공부, 강의 복습
         </p>
       ) : (
-        <ul className="divide-border border-border mb-3 divide-y rounded-[var(--radius-control)] border">
+        <ul className="divide-border bg-surface mb-3 divide-y rounded-[var(--radius-control)]">
           {categories.map((c, i) => (
             <li key={c.id} className="flex min-h-12 items-center gap-2 px-3 py-1.5">
               {editingId === c.id ? (

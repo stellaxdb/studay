@@ -52,7 +52,7 @@ export function Dialog({
         if (e.target === e.currentTarget) onClose();
       }}
       className={cn(
-        "border-border bg-surface text-fg m-auto w-[calc(100%-2rem)] rounded-[var(--radius-card)] border p-0 shadow-[0_8px_24px_rgb(25_31_40/0.08)]",
+        "bg-surface text-fg m-auto w-[calc(100%-2rem)] rounded-[var(--radius-dialog)] p-0 shadow-[0_8px_24px_rgb(25_31_40/0.08)]",
         size === "sm" ? "max-w-sm" : "max-w-lg",
       )}
     >
