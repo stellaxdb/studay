@@ -253,7 +253,7 @@
 
 - `src/app/(auth)/` 로그인·회원가입, `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` 이메일 인증 처리
 - `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy)
-- `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 테스트, `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
+- `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 테스트, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
 - `src/components/ui/` 공통 UI, 그 외 `src/components/*` 도메인별 컴포넌트
 - `supabase/migrations/` DB 스키마·RLS·타이머 함수, `scripts/test-db.mjs` DB 통합 테스트
 - `docs/deployment.md` 배포·인증(redirect URL, Google 로그인)·마이그레이션 적용 방법. 4.1·11절에서 README에 기록하라고 한 배포·인증 설정은 이 문서에 기록하고 README에서는 링크만 둔다
