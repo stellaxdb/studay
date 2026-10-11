@@ -114,6 +114,34 @@ describe("with a measurement ID", () => {
   });
 });
 
+describe("pauseDurations", () => {
+  it("returns the last run and the total, excluding pauses", async () => {
+    const { a } = await load(undefined);
+    expect(
+      a.pauseDurations([
+        // second run listed first: order must not matter
+        { started_at: "2026-10-11T10:30:00.000Z", ended_at: "2026-10-11T10:40:00.900Z" },
+        { started_at: "2026-10-11T10:00:00.000Z", ended_at: "2026-10-11T10:25:00.000Z" },
+      ]),
+    ).toEqual({ segment_seconds: 600, elapsed_seconds: 2100, elapsed_minutes: 35 });
+  });
+
+  it("crosses midnight and ignores a still-open segment", async () => {
+    const { a } = await load(undefined);
+    expect(
+      a.pauseDurations([
+        { started_at: "2026-10-11T14:50:00Z", ended_at: "2026-10-11T15:10:00Z" },
+        { started_at: "2026-10-11T15:20:00Z", ended_at: null },
+      ]),
+    ).toEqual({ segment_seconds: 1200, elapsed_seconds: 1200, elapsed_minutes: 20 });
+    expect(a.pauseDurations([])).toEqual({
+      segment_seconds: 0,
+      elapsed_seconds: 0,
+      elapsed_minutes: 0,
+    });
+  });
+});
+
 describe("auth event cookie helpers", () => {
   it("round-trips valid events and rejects anything else", async () => {
     const { a } = await load(undefined);

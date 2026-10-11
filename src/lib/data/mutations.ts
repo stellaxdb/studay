@@ -1,7 +1,7 @@
 "use client";
 
 import { mutate } from "swr";
-import { trackEvent, trackEventOnce, yesNo } from "@/lib/analytics";
+import { measurementId, pauseDurations, trackEvent, trackEventOnce, yesNo } from "@/lib/analytics";
 import { getSupabase } from "@/lib/supabase/client";
 import type { EventType, Priority, StudySession, Subject, TodoStatus } from "@/lib/types";
 import { revalidate } from "./keys";
@@ -239,12 +239,31 @@ export async function startSession(subjectId: string, todoId: string | null) {
   }
 }
 
+/** Reports a pause with the study time so far. Analytics only: never throws. */
+async function trackPause(session: StudySession) {
+  if (!measurementId()) return;
+  try {
+    const { data, error } = await getSupabase()
+      .from("study_segments")
+      .select("started_at, ended_at")
+      .eq("session_id", session.id);
+    if (error) throw error;
+    trackEventOnce(
+      `pause:${session.id}:${session.updated_at}`,
+      "study_session_pause",
+      pauseDurations(data ?? []),
+    );
+  } catch (error) {
+    console.warn("[analytics] pause event not sent", error);
+  }
+}
+
 export async function pauseSession(id: string) {
   try {
     const session = await timerRpc("pause_study_session", { p_session_id: id });
     // Pausing is idempotent: a repeated request returns the same row (same
     // updated_at), so the key only changes for a new pause.
-    trackEventOnce(`pause:${session.id}:${session.updated_at}`, "study_session_pause", {});
+    void trackPause(session);
     return session;
   } finally {
     await revalidate("active-session");
@@ -253,7 +272,10 @@ export async function pauseSession(id: string) {
 
 export async function resumeSession(id: string) {
   try {
-    return await timerRpc("resume_study_session", { p_session_id: id });
+    const session = await timerRpc("resume_study_session", { p_session_id: id });
+    // Resuming is idempotent like pausing: one event per real resume.
+    trackEventOnce(`resume:${session.id}:${session.updated_at}`, "study_session_resume", {});
+    return session;
   } finally {
     await revalidate("active-session");
   }

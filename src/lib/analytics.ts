@@ -19,7 +19,13 @@ export interface AnalyticsEvents {
   sign_up: { method: AuthMethod };
   login: { method: AuthMethod };
   study_session_start: { with_todo: YesNo };
-  study_session_pause: Record<string, never>;
+  /** segment_seconds: the run that just ended; elapsed_seconds: studied so far (pauses excluded). */
+  study_session_pause: {
+    segment_seconds: number;
+    elapsed_seconds: number;
+    elapsed_minutes: number;
+  };
+  study_session_resume: Record<string, never>;
   study_session_complete: { duration_seconds: number; duration_minutes: number; with_todo: YesNo };
   todo_create: { priority: Priority; has_due_date: YesNo; has_category: YesNo };
   todo_complete: Record<string, never>;
@@ -81,6 +87,25 @@ export function trackEvent<N extends AnalyticsEventName>(name: N, params: Analyt
   } catch (error) {
     console.warn("[analytics] event not sent", name, error);
   }
+}
+
+/**
+ * Study time of a just-paused session, counted like the database does
+ * (whole seconds per segment): the last segment and the total so far.
+ */
+export function pauseDurations(segments: { started_at: string; ended_at: string | null }[]) {
+  const lengths = segments
+    .filter((s) => s.ended_at)
+    .sort((a, b) => Date.parse(a.started_at) - Date.parse(b.started_at))
+    .map((s) =>
+      Math.max(0, Math.floor((Date.parse(s.ended_at!) - Date.parse(s.started_at)) / 1000)),
+    );
+  const elapsed = lengths.reduce((sum, n) => sum + n, 0);
+  return {
+    segment_seconds: lengths.at(-1) ?? 0,
+    elapsed_seconds: elapsed,
+    elapsed_minutes: Math.round(elapsed / 60),
+  };
 }
 
 // ---------------------------------------------------------------------------
