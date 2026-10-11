@@ -271,6 +271,10 @@
 
 `CONTRIBUTING.md`를 따른다. `main`에 직접 커밋하지 않고 `feat/…`, `fix/…` 등 작업 브랜치에서 Conventional Commits(`feat(timer): …`) 형식으로 커밋한다. 커밋 훅이 lint-staged와 commitlint를 실행한다.
 
+### 마이그레이션이 있는 작업의 병합 순서 (필수)
+
+`main` 병합 즉시 Vercel이 배포되지만 Supabase 마이그레이션은 사용자가 직접 실행해야 한다. 새 마이그레이션이 포함된 작업은 **사용자가 Supabase에 SQL을 적용했다고 확인하기 전에는 `main`에 병합하지 않는다.** 작업 브랜치까지만 푸시하고, 실행할 파일과 방법을 안내한 뒤 확인을 받고 병합한다. 확인 쿼리(예: 새 컬럼 존재 여부)를 함께 제공한다.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
