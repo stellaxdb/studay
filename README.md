@@ -152,6 +152,7 @@ docs/                    요구사항·디자인 시스템·구현 지침, 스�
 ## 문서
 
 - [docs/deployment.md](docs/deployment.md) — 배포·인증·Google Analytics 설정 가이드
+- [docs/analytics.md](docs/analytics.md) — GA4 이벤트 명세(시점·파라미터·중복 방지)
 - [docs/study-space-prompt.md](docs/study-space-prompt.md) — 제품 요구사항과 수용 기준
 - [docs/design.md](docs/design.md) — 디자인 시스템
 - [docs/implementation-prompt.md](docs/implementation-prompt.md) — 구현·검증·배포 지침
