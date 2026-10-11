@@ -70,10 +70,12 @@ export function SidebarContent({
   email,
   onSignOut,
   onNavigate,
+  showTimer = true,
 }: {
   email: string | null;
   onSignOut: () => void;
   onNavigate?: () => void;
+  showTimer?: boolean;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -93,7 +95,7 @@ export function SidebarContent({
         ))}
       </nav>
 
-      <ActiveTimerCard onNavigate={onNavigate} />
+      {showTimer && <ActiveTimerCard onNavigate={onNavigate} />}
 
       <nav
         aria-label="계정 메뉴"

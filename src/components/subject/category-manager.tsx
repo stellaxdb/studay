@@ -201,7 +201,10 @@ export function CategoryManager({
             placeholder="새 카테고리 이름"
             value={newName}
             maxLength={30}
-            onChange={(e) => setNewName(e.target.value)}
+            onChange={(e) => {
+              setNewName(e.target.value);
+              if (addError) setAddError(null);
+            }}
           />
           {addError && (
             <p id="category-add-error" role="alert" className="text-danger mt-1 text-xs">

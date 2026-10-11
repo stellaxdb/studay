@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
 
@@ -59,6 +60,7 @@ export function SignupForm() {
       }
       if (data.session) {
         // Email confirmation is disabled in this Supabase project.
+        await clearCache({ refetch: true });
         router.replace("/");
         router.refresh();
         return;

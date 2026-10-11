@@ -438,12 +438,7 @@ function SubjectStat({
       <dt className="text-fg-secondary text-xs font-medium">{label}</dt>
       <dd className="tabular text-fg mt-1 text-sm font-semibold">{value}</dd>
       {progress !== null && (
-        <ProgressBar
-          value={progress}
-          label={progressLabel}
-          color={color}
-          className="bg-border mt-2.5"
-        />
+        <ProgressBar value={progress} label={progressLabel} color={color} className="mt-2.5" />
       )}
     </div>
   );

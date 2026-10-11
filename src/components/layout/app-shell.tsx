@@ -2,12 +2,13 @@
 
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import { SWRConfig } from "swr";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/states";
 import { ToastProvider, useToast } from "@/components/ui/toast";
+import { cacheNeedsRefetch, clearCache } from "@/lib/data/keys";
 import { getSupabaseEnv } from "@/lib/env";
 import { getSupabase } from "@/lib/supabase/client";
 import { SidebarContent } from "./sidebar";
@@ -16,25 +17,37 @@ import { SetupNotice } from "./setup-notice";
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const toast = useToast();
-  const [email, setEmail] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<{ id: string; email: string | null } | null>(null);
+  const ready = user !== null;
+  const email = user?.email ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLDialogElement>(null);
+  const lastUserId = useRef<string | null>(null);
 
   useEffect(() => {
     const supabase = getSupabase();
     let active = true;
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!active) return;
       if (!data.user) {
+        await clearCache({ refetch: false });
         router.replace("/login");
         return;
       }
-      setEmail(data.user.email ?? null);
-      setReady(true);
+      const next = { id: data.user.id, email: data.user.email ?? null };
+      // Never show one account's cached data to another account.
+      if (lastUserId.current !== next.id || cacheNeedsRefetch()) {
+        await clearCache({ refetch: true });
+      }
+      lastUserId.current = next.id;
+      if (active) setUser(next);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") router.replace("/login");
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        void clearCache({ refetch: false });
+        router.replace("/login");
+      }
     });
     return () => {
       active = false;
@@ -55,6 +68,8 @@ function Shell({ children }: { children: ReactNode }) {
       toast.error("로그아웃하지 못했어요. 다시 시도해 주세요.");
       return;
     }
+    setUser(null);
+    await clearCache({ refetch: false });
     router.replace("/login");
     router.refresh();
   }
@@ -70,7 +85,7 @@ function Shell({ children }: { children: ReactNode }) {
 
       {/* Desktop sidebar */}
       <aside className="border-border bg-background fixed inset-y-0 left-0 hidden w-[232px] border-r md:block">
-        <SidebarContent email={email} onSignOut={signOut} />
+        <SidebarContent email={email} onSignOut={signOut} showTimer={ready} />
       </aside>
 
       {/* Mobile top bar + drawer */}
@@ -110,6 +125,7 @@ function Shell({ children }: { children: ReactNode }) {
             <SidebarContent
               email={email}
               onSignOut={signOut}
+              showTimer={ready}
               onNavigate={() => setDrawerOpen(false)}
             />
           </div>
@@ -117,14 +133,31 @@ function Shell({ children }: { children: ReactNode }) {
       </dialog>
 
       <main id="main" className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {ready ? children : <LoadingState className="py-24" />}
+        {/* Keyed by user: page state (filters, selections) never leaks across accounts. */}
+        {user ? <Fragment key={user.id}>{children}</Fragment> : <LoadingState className="py-24" />}
       </main>
     </div>
   );
 }
 
+const noopSubscribe = () => () => {};
+
+/**
+ * Personal pages depend on the signed-in user and the current time, so they
+ * are rendered only in the browser. The prerendered shell is a loading state.
+ */
+function useIsClient() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
+  const isClient = useIsClient();
   if (!getSupabaseEnv()) return <SetupNotice />;
+  if (!isClient) return <LoadingState className="py-24" />;
   return (
     <SWRConfig
       value={{
