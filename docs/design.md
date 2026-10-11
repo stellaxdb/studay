@@ -8,7 +8,8 @@
 > - Larger radii: cards 16px, inputs 12px, dialogs 24px, **pill-shaped buttons**.
 > - Key numbers are the hero of a card: 26–30px, weight 800, tight tracking. One
 >   number per metric card; explanation below in secondary gray.
-> - Secondary text `#4E5968`, tertiary `#6B7684`; body weight 500.
+> - Primary text `#333D4B` (softened from `#191F28` to reduce eye strain), secondary
+>   `#4E5968`, tertiary `#6B7684`; body weight 500.
 > - One primary (purple) button per screen region; other actions are white
 >   outlined or text buttons.
 > - Desktop-first layout with a persistent sidebar is kept. Mobile-only patterns
@@ -118,7 +119,7 @@ adjust for contrast.
   --border: #E5E8EB;
   --border-strong: #D1D6DB;
 
-  --text-primary: #191F28;
+  --text-primary: #333D4B;
   --text-secondary: #4E5968;
   --text-tertiary: #6B7684;
 
