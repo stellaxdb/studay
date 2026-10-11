@@ -101,6 +101,17 @@ try {
     assert.equal(rows[0].timezone, "Asia/Seoul");
   });
 
+  await test("Google 가입자는 full_name이 기본 이름으로 저장된다", async () => {
+    const google = randomUUID();
+    await db.query(
+      `insert into auth.users (id, email, raw_user_meta_data)
+       values ($1, 'g@example.com', '{"full_name":"오단비","name":"Danbi"}')`,
+      [google],
+    );
+    const { rows } = await as(google, (q) => q("select display_name from user_settings"));
+    assert.equal(rows[0].display_name, "오단비");
+  });
+
   await test("잘못된 시간대는 거부된다", async () => {
     await expectError(
       as(alice, (q) => q("update user_settings set timezone = 'Mars/Base'")),
