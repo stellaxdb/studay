@@ -2,8 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/env";
 
-// /api/email-domain is used by the sign-up form before the visitor has an account.
-const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/api/email-domain"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth"];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
