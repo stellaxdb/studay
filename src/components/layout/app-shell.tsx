@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import { SWRConfig } from "swr";
+import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/states";
 import { ToastProvider, useToast } from "@/components/ui/toast";
@@ -90,7 +91,7 @@ function Shell({ children }: { children: ReactNode }) {
 
       {/* Mobile top bar + drawer */}
       <header className="border-border bg-background/95 sticky top-0 z-30 flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm md:hidden">
-        <span className="text-base font-bold tracking-tight">studay</span>
+        <Logo height={22} />
         <Button
           variant="tertiary"
           size="icon"

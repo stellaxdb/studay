@@ -3,7 +3,7 @@
 > **Revision (2026-10-11, studay)** — The visual language follows a Toss-inspired
 > structure adapted for a desktop web app, while keeping studay's own purple accent:
 >
-> - White canvas (`#FFFFFF`) with **borderless gray cards** (`#F2F4F6`); white blocks
+> - White canvas (`#FFFFFF`) with **borderless light-gray cards** (`#F7F8FA`); white blocks
 >   (inputs, rows, stat boxes) sit inside cards when they need separation.
 > - Larger radii: cards 16px, inputs 12px, dialogs 24px, **pill-shaped buttons**.
 > - Key numbers are the hero of a card: 26–30px, weight 800, tight tracking. One
@@ -112,9 +112,9 @@ adjust for contrast.
 ``` css
 :root {
   --background: #FFFFFF;       /* canvas */
-  --card: #F2F4F6;             /* borderless section cards */
+  --card: #F7F8FA;             /* borderless section cards */
   --surface: #FFFFFF;          /* inputs, dialogs, white blocks inside cards */
-  --surface-subtle: #E8EBEE;   /* hover fills, segmented tracks */
+  --surface-subtle: #EEF0F3;   /* hover fills, segmented tracks */
   --border: #E5E8EB;
   --border-strong: #D1D6DB;
 

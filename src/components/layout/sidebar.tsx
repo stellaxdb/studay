@@ -3,6 +3,7 @@
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/brand/logo";
 import { ColorDot } from "@/components/ui/badge";
 import { cn } from "@/components/ui/cn";
 import { useSubjects } from "@/lib/data/queries";
@@ -80,13 +81,7 @@ export function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 px-5">
-        <span
-          aria-hidden
-          className="bg-primary flex size-7 items-center justify-center rounded-lg text-sm font-bold text-white"
-        >
-          s
-        </span>
-        <span className="text-fg text-lg font-bold tracking-tight">studay</span>
+        <Logo height={26} />
       </div>
 
       <nav aria-label="주 메뉴" className="flex flex-1 flex-col gap-0.5 px-3 pt-2">

@@ -7,11 +7,11 @@
 :root {
   --background: #ffffff;
   /* Section/card surface on the white canvas */
-  --card: #f2f4f6;
+  --card: #f7f8fa;
   /* Raised controls and blocks (inputs, dialogs, white rows inside cards) */
   --surface: #ffffff;
   /* Hover fills, segmented tracks */
-  --surface-subtle: #e8ebee;
+  --surface-subtle: #eef0f3;
   --border: #e5e8eb;
   --border-strong: #d1d6db;
 
