@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { EmailSuggestion } from "@/components/auth/email-suggestion";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { ResendConfirmation } from "@/components/auth/resend-confirmation";
 import { trackEvent } from "@/lib/analytics";
 import {
   NAME_MAX,
@@ -131,17 +132,26 @@ export function SignupForm() {
           <strong className="text-fg font-semibold">{sentTo}</strong>로 인증 메일을 보냈어요. 메일의
           링크를 누르면 가입이 완료되고 바로 시작할 수 있어요.
         </p>
-        <p className="text-fg-secondary mt-6 text-sm">
-          메일이 오지 않았나요? 스팸함을 확인하거나{" "}
-          <button
-            type="button"
-            className="text-primary font-semibold hover:underline"
-            onClick={() => setSentTo(null)}
-          >
-            다시 가입
-          </button>
-          해 주세요.
-        </p>
+        <div className="mt-6">
+          <p className="text-fg-secondary mb-2 text-sm">
+            메일이 오지 않았나요? 스팸함을 확인하거나 다시 받아 보세요.
+          </p>
+          <ResendConfirmation email={sentTo} initialCooldown={60} />
+        </div>
+        <ul className="text-fg-tertiary mt-6 list-disc space-y-1 pl-4 text-xs leading-5">
+          <li>이미 가입한 이메일이라면 인증 메일이 다시 가지 않아요. 로그인해 주세요.</li>
+          <li>
+            주소를 잘못 입력했다면{" "}
+            <button
+              type="button"
+              className="text-primary font-semibold hover:underline"
+              onClick={() => setSentTo(null)}
+            >
+              다른 이메일로 가입
+            </button>
+            해 주세요.
+          </li>
+        </ul>
       </div>
     );
   }

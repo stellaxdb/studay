@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { EmailSuggestion } from "@/components/auth/email-suggestion";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { ResendConfirmation } from "@/components/auth/resend-confirmation";
 import { trackEvent } from "@/lib/analytics";
 import { safeNext } from "@/lib/auth-redirect";
 import { normalizeEmail, validateLogin, type LoginField } from "@/lib/auth-validation";
@@ -26,10 +27,12 @@ export function LoginForm() {
     if (code === "callback")
       return "로그인을 완료하지 못했어요. 같은 브라우저에서 처음부터 다시 시도해 주세요.";
     if (code === "confirm")
-      return "인증 링크가 만료되었거나 올바르지 않아요. 다시 로그인하거나 가입해 주세요.";
+      return "인증 링크가 만료됐거나 이미 사용됐어요. 이메일과 비밀번호로 로그인하면 인증 메일을 다시 받을 수 있어요.";
     return null;
   });
   const [loading, setLoading] = useState(false);
+  // Set when login fails because the email isn't confirmed yet.
+  const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
   const [touched, setTouched] = useState<Partial<Record<LoginField, boolean>>>({});
   const [submitCount, setSubmitCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
@@ -46,6 +49,7 @@ export function LoginForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setUnconfirmed(null);
     setTouched({ email: true, password: true });
     if (Object.keys(allErrors).length > 0) {
       setSubmitCount((n) => n + 1);
@@ -59,6 +63,7 @@ export function LoginForm() {
       });
       if (signInError) {
         setError(authErrorMessage(signInError));
+        if (signInError.code === "email_not_confirmed") setUnconfirmed(normalizeEmail(email));
         return;
       }
       trackEvent("login", { method: "email" });
@@ -125,6 +130,7 @@ export function LoginForm() {
             {error}
           </p>
         )}
+        {unconfirmed && <ResendConfirmation email={unconfirmed} next={params.get("next")} />}
         <Button type="submit" loading={loading} className="mt-2 h-11">
           로그인
         </Button>

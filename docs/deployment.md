@@ -49,7 +49,31 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 
 이미 가입한 계정의 비밀번호는 바뀌지 않으며, 로그인 화면은 비밀번호 규칙을 다시 검사하지 않습니다(형식과 빈칸만 확인).
 
-**이메일 인증**: Supabase 기본 메일 서버는 발송량이 적은 테스트용입니다. 혼자 쓰거나 테스트할 때는 **Sign In / Providers > Email**에서 **Confirm email**을 끄면 가입 즉시 로그인됩니다. 여러 사람이 쓰게 하려면 Custom SMTP를 설정하세요.
+### 이메일 인증 (Confirm email)
+
+켜면 가입자가 메일의 링크를 눌러야 가입이 끝나므로, 실제로 쓰는 메일함인지 확인됩니다. 앱은 켜짐·꺼짐 두 상태를 모두 지원합니다(꺼져 있으면 가입 즉시 로그인).
+
+1. **Sign In / Providers > Email**에서 **Confirm email**을 켜고 Save 합니다.
+2. **URL Configuration**의 Site URL이 `https://<내-도메인>.vercel.app`이고, Redirect URLs에 `/auth/callback`이 있는지 확인합니다.
+3. **Emails > Templates > Confirm signup**의 내용을 아래로 바꿉니다. 기본 템플릿은 가입한 브라우저에서만 열리는 링크(PKCE)를 보내서, 휴대폰 메일 앱처럼 다른 기기에서 열면 실패합니다. 아래 링크(`token_hash`)는 어느 기기에서 열어도 인증되고 앱의 `/auth/callback`이 처리합니다.
+
+   - Subject: `[studay] 이메일 인증을 완료해 주세요`
+   - Body:
+
+   ```html
+   <h2>studay 가입을 환영해요</h2>
+   <p>아래 버튼을 누르면 이메일 인증이 끝나고 바로 시작할 수 있어요.</p>
+   <p>
+     <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/">
+       이메일 인증하기
+     </a>
+   </p>
+   <p>직접 가입하지 않았다면 이 메일은 무시해 주세요.</p>
+   ```
+
+4. **Custom SMTP (권장)**: Supabase 기본 메일 서버는 테스트용이라 시간당 발송량이 매우 적고 팀원 주소로만 보내도록 제한될 수 있습니다. 실제 사용자를 받으려면 **Project Settings > Authentication > SMTP Settings**에 메일 발송 서비스(Resend, Brevo 등)를 연결하세요. 무료 범위와 제한은 서비스마다 다르니 가입할 때 확인하세요.
+
+앱의 동작: 가입 후 "메일을 확인해 주세요" 화면과 **인증 메일 다시 보내기**(60초 간격) 버튼, 인증 전에 로그인하면 안내 문구와 재발송 버튼, 만료되거나 이미 쓴 링크는 로그인 화면에서 재발송 방법을 안내합니다. 켜기 전에 가입한 계정은 이미 인증된 것으로 기록되어 있어 다시 인증을 요구하지 않습니다.
 
 ## 3. Vercel
 
