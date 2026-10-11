@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------------
+ * studay design tokens (see design.md)
+ * Neutral surfaces, one restrained accent, borders instead of shadows.
+ * --------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f8fa;
+  --surface: #ffffff;
+  --surface-subtle: #f2f4f7;
+  --border: #e5e8eb;
+  --border-strong: #d5d9de;
+
+  --text-primary: #191f28;
+  --text-secondary: #6b7684;
+  /* Darkened from #8B95A1 so helper text keeps 4.5:1 contrast on white. */
+  --text-tertiary: #6f7a87;
+
+  --primary: #6c5ce7;
+  --primary-hover: #5b4bd8;
+  --primary-subtle: #f0eeff;
+
+  --success: #16845b;
+  --success-subtle: #e8f7ef;
+  --warning: #9a6417;
+  --warning-subtle: #fff4d6;
+  --danger: #d64545;
+  --danger-subtle: #fff0f0;
+
+  --focus-ring: #8a7cff;
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-fg: var(--text-primary);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-tertiary: var(--text-tertiary);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --color-focus: var(--focus-ring);
+
+  --font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+  --radius-control: 10px;
+  --radius-card: 14px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss06";
+  letter-spacing: -0.01em;
+}
+
+/* Visible keyboard focus everywhere, never on mouse click. */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Native <dialog> backdrop */
+dialog::backdrop {
+  background: rgb(25 31 40 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
