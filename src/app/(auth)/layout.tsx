@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-[400px]">
         <div className="mb-8 flex items-center">
-          <Logo height={30} />
+          <Logo height={36} />
         </div>
         {children}
       </div>
