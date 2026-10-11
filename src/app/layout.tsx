@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "./globals.css";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 
 export const metadata: Metadata = {
   title: { default: "studay", template: "%s · studay" },
@@ -15,7 +16,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <GoogleAnalytics />
+      </body>
     </html>
   );
 }

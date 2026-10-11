@@ -7,6 +7,7 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { trackEvent } from "@/lib/analytics";
 import { safeNext } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
@@ -45,6 +46,7 @@ export function LoginForm() {
         setError(authErrorMessage(signInError));
         return;
       }
+      trackEvent("login", { method: "email" });
       await clearCache({ refetch: true });
       router.replace(safeNext(params.get("next")));
       router.refresh();

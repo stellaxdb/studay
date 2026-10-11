@@ -6,10 +6,12 @@
 
 ## 환경 변수
 
-| 변수                                   | 설명                                                                                                      |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL                                                                                     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 공개용 키(`sb_publishable_…`). 예전 프로젝트는 `NEXT_PUBLIC_SUPABASE_ANON_KEY`에 anon key를 넣어도 됩니다 |
+| 변수                                   | 설명                                                                                                           |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL                                                                                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 공개용 키(`sb_publishable_…`). 예전 프로젝트는 `NEXT_PUBLIC_SUPABASE_ANON_KEY`에 anon key를 넣어도 됩니다      |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID`        | (선택) GA4 측정 ID(`G-…`). 비워 두면 GA를 불러오지 않습니다. [5. Google Analytics](#5-google-analytics-4-선택) |
+| `NEXT_PUBLIC_GA_DEBUG`                 | (선택) `true`면 이벤트를 GA DebugView에 표시. 로컬·Preview 검증용                                              |
 
 두 값 모두 브라우저에 공개되도록 설계된 값이며 데이터 보호는 RLS가 담당합니다. 이 앱은 service_role·secret key를 쓰지 않으니 어떤 비밀 키도 `NEXT_PUBLIC_` 변수로 등록하지 마세요. 값은 Supabase 대시보드의 **Connect** 버튼(App Frameworks > Next.js)에서 복사할 수 있습니다.
 
@@ -60,6 +62,50 @@ Vercel Preview 배포에서도 로그인하려면 `https://*-<vercel-계정>.ver
 4. 2단계의 Redirect URLs에 `https://<내-도메인>.vercel.app/auth/callback`이 있는지 확인합니다. Google 로그인에는 필수입니다.
 
 같은 이메일로 이미 가입한 계정은 같은 사용자로 연결되고, Google 가입자의 이름은 Google 프로필 이름으로 자동 설정됩니다. Google 브랜딩 가이드는 공식 "G" 로고 사용을 권장하므로, 필요하면 [공식 리소스](https://developers.google.com/identity/branding-guidelines)를 받아 `src/components/auth/google-button.tsx`에 넣으세요.
+
+## 5. Google Analytics 4 (선택)
+
+### 설정
+
+1. GA4 **관리 > 데이터 스트림 > 웹**에서 측정 ID(`G-…`)를 확인합니다. Google이 안내하는 `<script>` 태그는 붙여넣지 않아도 됩니다. 앱이 같은 태그(`gtag.js` + `js` + `config`)를 루트 레이아웃에서 한 번 불러옵니다.
+2. Vercel **Settings > Environment Variables**에 `NEXT_PUBLIC_GA_MEASUREMENT_ID`를 추가합니다. 실서비스 통계만 모으려면 Environment는 **Production**만 체크합니다.
+3. `NEXT_PUBLIC_` 값은 빌드 때 코드에 들어가므로 **Deployments > 최신 배포 ⋯ > Redeploy**를 해야 반영됩니다.
+4. 같은 웹 스트림의 **향상된 측정**에서 **페이지 조회 > 고급 설정 > 브라우저 기록 이벤트 기반 페이지 변경**이 켜져 있는지 확인합니다(기본값: 켜짐). 화면 이동은 SPA라서 이 설정이 page_view를 보내며, 앱은 page_view를 직접 보내지 않습니다.
+
+### 수집하는 이벤트
+
+모든 커스텀 이벤트는 작업이 **실제로 저장된 뒤**에만 보냅니다. 버튼 클릭, 검증 실패, 저장 실패는 보내지 않습니다.
+
+| 이벤트                   | 시점                                                                          | 파라미터                                            |
+| ------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------------- |
+| `page_view`              | 첫 로드(`config`) + 화면 이동(GA 향상된 측정)                                 | GA 기본값                                           |
+| `sign_up`                | 이메일 가입 완료(이메일 인증을 켠 경우 인증 링크를 연 시점), Google 첫 로그인 | `method`: `email`/`google`                          |
+| `login`                  | 이메일 로그인 성공, 기존 계정의 Google 로그인                                 | `method`                                            |
+| `study_session_start`    | 타이머 시작 성공(새로고침 복원 시에는 보내지 않음)                            | `with_todo`                                         |
+| `study_session_pause`    | 일시정지 성공. 같은 일시정지에 대한 재요청은 한 번만                          | 없음                                                |
+| `study_session_complete` | 종료·저장 성공. 세션당 한 번(재시도·중복 요청·새로고침에도 한 번)             | `duration_seconds`, `duration_minutes`, `with_todo` |
+| `todo_create`            | 할 일 저장 성공                                                               | `priority`, `has_due_date`, `has_category`          |
+| `todo_complete`          | 미완료 → 완료로 실제 바뀐 경우(완료 취소는 제외)                              | 없음                                                |
+| `subject_create`         | 과목 저장 성공                                                                | `has_weekly_goal`                                   |
+
+이름·이메일·할 일 제목·과목명·메모·ID는 보내지 않습니다. 파라미터는 `src/lib/analytics.ts`의 타입으로 제한됩니다. Google 로그인과 이메일 인증 링크는 서버(`/auth/callback`)에서 끝나므로 결과를 5분짜리 쿠키(`studay_auth_event`, 값 예: `login.google`)로 다음 화면에 넘기고, 브라우저가 한 번 보낸 뒤 바로 지웁니다.
+
+### 확인하기
+
+- **실시간 보고서**: 배포 후 사이트를 열면 GA **보고서 > 실시간**에 1분 안팎으로 표시됩니다.
+- **DebugView**(관리 > DebugView): Chrome에서 [Tag Assistant](https://tagassistant.google.com/)로 사이트를 연결하거나, Preview·로컬에서 `NEXT_PUBLIC_GA_DEBUG=true`로 빌드하면 이벤트가 하나씩 보입니다.
+- 커스텀 파라미터(`with_todo`, `priority` 등)를 보고서에서 쓰려면 **관리 > 맞춤 정의 > 맞춤 측정기준 만들기**(범위: 이벤트)에 같은 이름으로 등록하세요. 등록 이후 데이터부터 집계됩니다.
+- 이탈 지점 분석: **탐색 > 유입경로 탐색 분석**에 `sign_up → subject_create → todo_create → study_session_start → study_session_complete` 단계를 넣으면 어느 단계에서 사용자가 멈추는지 볼 수 있습니다.
+
+### 로컬에서 테스트
+
+```bash
+# .env.local
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXX
+NEXT_PUBLIC_GA_DEBUG=true
+```
+
+`npm run dev`로 실행한 뒤 GA **DebugView**에서 이벤트를 확인합니다. 광고 차단 확장 프로그램이 `googletagmanager.com`을 막으면 이벤트가 보이지 않습니다. 로컬 테스트 데이터가 실서비스 통계에 섞이지 않게 하려면 테스트용 GA 속성을 따로 쓰거나, 확인 후 변수를 지우세요.
 
 ## 무료 플랜 참고 (2026-10 확인)
 
