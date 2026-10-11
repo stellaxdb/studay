@@ -81,7 +81,7 @@ export function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 px-5">
-        <Logo height={26} />
+        <Logo height={32} />
       </div>
 
       <nav aria-label="주 메뉴" className="flex flex-1 flex-col gap-0.5 px-3 pt-2">

@@ -91,7 +91,7 @@ function Shell({ children }: { children: ReactNode }) {
 
       {/* Mobile top bar + drawer */}
       <header className="border-border bg-background/95 sticky top-0 z-30 flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm md:hidden">
-        <Logo height={22} />
+        <Logo height={26} />
         <Button
           variant="tertiary"
           size="icon"
