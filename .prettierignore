@@ -4,6 +4,5 @@ package-lock.json
 next-env.d.ts
 supabase/.temp
 coverage
-docs/study-space-prompt.md
+docs/requirements/
 docs/design.md
-docs/implementation-prompt.md
