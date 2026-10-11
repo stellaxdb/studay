@@ -7,6 +7,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { authCallbackUrl } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
@@ -51,7 +53,7 @@ export function SignupForm() {
         password,
         options: {
           data: { display_name: name.trim() || null },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+          emailRedirectTo: authCallbackUrl(window.location.origin, "/"),
         },
       });
       if (error) {
@@ -103,7 +105,11 @@ export function SignupForm() {
     <>
       <h1 className="text-2xl font-bold tracking-tight">회원가입</h1>
       <p className="text-fg-secondary mt-1 text-sm">과목, 할 일, 공부 시간을 한곳에서 관리해요.</p>
-      <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-4">
+      <div className="mt-8">
+        <GoogleButton onError={(message) => setErrors({ form: message })} />
+      </div>
+      <AuthDivider />
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <Field label="이름" optional error={errors.name} hint="홈 화면 인사에 사용돼요.">
           {({ id, describedBy, invalid }) => (
             <Input

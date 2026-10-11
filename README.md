@@ -31,7 +31,9 @@ Supabase 환경 변수가 없으면 앱은 오류 대신 "Supabase 연결이 필
 
 1. [supabase.com](https://supabase.com)에서 새 프로젝트를 만듭니다. 리전은 사용자와 가까운 곳(예: Northeast Asia (Seoul))을 고릅니다.
 2. DB 스키마를 적용합니다. 둘 중 하나를 선택하세요.
-   - **가장 쉬운 방법 (SQL Editor)**: 대시보드 > SQL Editor > New query에 [`supabase/migrations/20261011000000_init.sql`](supabase/migrations/20261011000000_init.sql) 전체를 붙여넣고 **Run**.
+   - **가장 쉬운 방법 (SQL Editor)**: 대시보드 > SQL Editor > New query에 [`supabase/migrations/`](supabase/migrations) 폴더의 SQL 파일을 **파일 이름 순서대로** 하나씩 붙여넣고 **Run**.
+     1. `20261011000000_init.sql` — 테이블·RLS·타이머 함수
+     2. `20261011160000_social_login_display_name.sql` — Google 가입자의 이름을 기본 이름으로 사용
    - **Supabase CLI**: `npx supabase login` → `npx supabase link --project-ref <프로젝트-ref>` → `npx supabase db push`
 3. Table Editor에서 `subjects`, `todos`, `study_sessions` 등 7개 테이블이 생기고 모두 **RLS enabled**로 표시되는지 확인합니다.
 
@@ -62,6 +64,26 @@ Supabase 환경 변수가 없으면 앱은 오류 대신 "Supabase 연결이 필
 - Redirect URLs에는 로컬·프로덕션 주소를 **둘 다** 추가해 두면 편합니다. Vercel Preview 배포까지 쓰려면 `https://*-<vercel-계정>.vercel.app/auth/callback` 같은 와일드카드를 추가할 수 있습니다.
 - 회원가입하면 인증 메일의 링크가 `/auth/callback`으로 돌아와 로그인이 완료됩니다.
 - Supabase 기본 메일 서버는 발송량이 적게 제한된 테스트용입니다. 혼자 쓰거나 테스트할 때는 Authentication > Sign In / Providers > Email에서 **Confirm email**을 끄면 가입 즉시 로그인됩니다. 다른 사람이 쓰게 하려면 Custom SMTP 설정을 권장합니다.
+
+### Google 로그인 설정
+
+코드는 준비되어 있고, Google과 Supabase에서 아래 설정을 해야 버튼이 동작합니다.
+
+1. **Supabase**: Authentication > Sign In / Providers > **Google**을 열고, 화면에 보이는 **Callback URL**(`https://<프로젝트-ref>.supabase.co/auth/v1/callback`)을 복사해 둡니다.
+2. **Google Cloud Console** ([console.cloud.google.com](https://console.cloud.google.com)) > 프로젝트 선택·생성 > **Google Auth Platform**
+   - **Branding**: 앱 이름(studay), 지원 이메일 입력
+   - **Audience**: User type **External**. 게시 전(Testing) 상태에서는 **Test users**에 추가한 Google 계정만 로그인할 수 있습니다. 누구나 쓰게 하려면 **Publish app**을 누르세요.
+   - **Data Access**: `openid` 범위 추가 (`email`, `profile`은 기본 포함)
+   - **Clients** > Create client > 유형 **Web application**
+     - Authorized JavaScript origins: `https://<내-도메인>.vercel.app`, (로컬 개발 시) `http://localhost:3000`
+     - Authorized redirect URIs: 1번에서 복사한 **Supabase Callback URL** (앱의 `/auth/callback`이 아닙니다)
+   - 생성된 **Client ID**와 **Client Secret**을 복사
+3. **Supabase** Google 화면으로 돌아와 Client ID·Client Secret을 붙여넣고 **Enable** 후 저장
+4. **Supabase** URL Configuration의 Redirect URLs에 `https://<내-도메인>.vercel.app/auth/callback`이 있는지 확인 (Google 로그인에는 **필수**)
+
+- 같은 이메일로 이미 가입한 계정이 있으면 Supabase가 같은 사용자로 연결합니다(이메일 인증이 완료된 경우).
+- Google 가입자의 이름은 Google 프로필 이름으로 자동 설정되며 설정 화면에서 바꿀 수 있습니다.
+- Google의 로그인 버튼 디자인 가이드는 공식 "G" 로고 사용을 권장합니다. 필요하면 [Google 브랜딩 가이드](https://developers.google.com/identity/branding-guidelines)에서 공식 이미지를 받아 `src/components/auth/google-button.tsx`에 넣으세요.
 
 ## 5. GitHub와 Vercel 배포
 
@@ -111,4 +133,4 @@ npm run test:db   # DB 통합 테스트 (일회용 PostgreSQL 필요)
 - 여러 날에 걸친 일정은 표시는 되지만, 일정 입력 폼은 하루 안의 시작·종료 시각만 지원합니다.
 - 공부 기록 시간을 수정하면 그 기록의 일시정지 구간이 하나로 합쳐집니다.
 - 오프라인 상태에서 타이머 조작은 저장되지 않으며, 실패 시 오류와 다시 시도 버튼을 보여줍니다.
-- 비밀번호 재설정, 소셜 로그인은 아직 없습니다.
+- 비밀번호 재설정, Google 외 소셜 로그인은 아직 없습니다.

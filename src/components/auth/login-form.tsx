@@ -6,25 +6,26 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { AuthDivider, GoogleButton } from "@/components/auth/google-button";
+import { safeNext } from "@/lib/auth-redirect";
 import { clearCache } from "@/lib/data/keys";
 import { authErrorMessage } from "@/lib/errors";
 import { getSupabase } from "@/lib/supabase/client";
-
-function safeNext(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
-  return value;
-}
 
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(
-    params.get("error") === "confirm"
-      ? "인증 링크가 만료되었거나 올바르지 않아요. 다시 로그인하거나 가입해 주세요."
-      : null,
-  );
+  const [error, setError] = useState<string | null>(() => {
+    const code = params.get("error");
+    if (code === "oauth") return "Google 로그인을 완료하지 못했어요. 다시 시도해 주세요.";
+    if (code === "callback")
+      return "로그인을 완료하지 못했어요. 같은 브라우저에서 처음부터 다시 시도해 주세요.";
+    if (code === "confirm")
+      return "인증 링크가 만료되었거나 올바르지 않아요. 다시 로그인하거나 가입해 주세요.";
+    return null;
+  });
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -58,7 +59,11 @@ export function LoginForm() {
     <>
       <h1 className="text-2xl font-bold tracking-tight">로그인</h1>
       <p className="text-fg-secondary mt-1 text-sm">오늘 할 공부를 이어서 관리해 보세요.</p>
-      <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-4">
+      <div className="mt-8">
+        <GoogleButton next={params.get("next")} onError={setError} />
+      </div>
+      <AuthDivider />
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         <Field label="이메일">
           {({ id, describedBy }) => (
             <Input
