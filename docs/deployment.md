@@ -67,7 +67,7 @@ studay는 **Google 로그인만** 사용합니다. Google이 확인한 이메일
 3. 발급된 Client ID·Client Secret을 Supabase Google 화면에 넣고 Enable 합니다.
 4. 2단계의 Redirect URLs에 `https://<내-도메인>.vercel.app/auth/callback`이 있는지 확인합니다. Google 로그인에는 필수입니다.
 
-같은 이메일로 이미 가입한 계정은 같은 사용자로 연결되고, Google 가입자의 이름은 Google 프로필 이름으로 자동 설정됩니다. Google 브랜딩 가이드는 공식 "G" 로고를 수정 없이 쓰도록 안내합니다. [공식 리소스](https://developers.google.com/identity/branding-guidelines)에서 받은 SVG를 `public/google-g.svg`로 넣으면 Google 버튼에 표시됩니다.
+같은 이메일로 이미 가입한 계정은 같은 사용자로 연결되고, Google 가입자의 이름은 Google 프로필 이름으로 자동 설정됩니다. 로그인 버튼은 Google 공식 "Sign in with Google" 버튼 코드의 "G" 로고(수정 없이 `src/components/auth/google-logo.tsx`)와 색상 규격을 따릅니다([브랜딩 가이드](https://developers.google.com/identity/branding-guidelines)).
 
 ## 5. Google Analytics 4 (선택)
 
