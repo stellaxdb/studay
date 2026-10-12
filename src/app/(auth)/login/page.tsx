@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { LoginForm } from "@/components/auth/login-form";
+import { StartPanel } from "@/components/auth/start-panel";
 
-export const metadata: Metadata = { title: "로그인" };
+export const metadata: Metadata = { title: "시작하기" };
 
 export default function LoginPage() {
   return (
     <Suspense>
-      <LoginForm />
+      <StartPanel />
     </Suspense>
   );
 }

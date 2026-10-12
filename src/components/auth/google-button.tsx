@@ -19,7 +19,7 @@ import { getSupabase } from "@/lib/supabase/client";
 export function GoogleButton({
   next,
   onError,
-  label = "Google 계정으로 계속하기",
+  label = "Google 계정으로 시작하기",
 }: {
   next?: string | null;
   onError: (message: string) => void;
