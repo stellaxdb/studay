@@ -14,13 +14,13 @@ export function SignupPanel() {
 
   return (
     <>
-      <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">회원가입</h1>
+      <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">시작하기</h1>
       <p className="text-fg-secondary mt-1 text-sm">과목, 할 일, 공부 시간을 한곳에서 관리해요.</p>
       <div className="mt-8">
         <GoogleButton label="Google 계정으로 시작하기" onError={setError} />
       </div>
       <p className="text-fg-tertiary mt-3 text-xs leading-5">
-        Google 계정으로 바로 가입돼요. 따로 비밀번호를 만들거나 인증 메일을 확인하지 않아도 돼요.
+        Google 계정으로 별도의 회원가입 없이 로그인할 수 있어요.
       </p>
       {error && (
         <p
