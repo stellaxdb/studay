@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { TodoFormDialog } from "@/components/todo/todo-form-dialog";
-import { TodoRow } from "@/components/todo/todo-row";
+import { SubjectTodoSections } from "@/components/todo/subject-todo-sections";
 import { ColorDot } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -23,7 +23,7 @@ import { useActiveElapsed, useWeek } from "@/lib/hooks";
 import { aggregateStudy, sumBySubject, sumDays } from "@/lib/stats";
 import { formatClock, formatDayLabel, formatDuration } from "@/lib/time";
 import { isDueSoon, isOverdue, progressBySubject, sortTodos } from "@/lib/todos";
-import type { Category, Subject, Todo } from "@/lib/types";
+import type { Todo } from "@/lib/types";
 
 export function DashboardView() {
   const week = useWeek();
@@ -69,6 +69,8 @@ export function DashboardView() {
   const overdue = sortTodos(todos.filter((t) => isOverdue(t, today)));
   const upcoming = sortTodos(todos.filter((t) => isDueSoon(t, today) && t.due_date !== today));
   const doneToday = dueToday.filter((t) => t.status === "done").length;
+  // What to look at today, earliest due first, shown per subject.
+  const focusTodos = sortTodos([...overdue, ...dueToday, ...upcoming]);
   const progress = progressBySubject(todos);
 
   const name = settingsQuery.data?.display_name;
@@ -173,6 +175,7 @@ export function DashboardView() {
         <Card>
           <CardHeader
             title="오늘의 할 일"
+            description="기한 지남·오늘 마감·3일 안에 마감, 과목별로 모았어요"
             action={
               <Link
                 href="/todos"
@@ -210,30 +213,12 @@ export function DashboardView() {
             />
           ) : (
             <div className="px-5 pb-3">
-              <TodoGroup
-                title="기한 지남"
-                tone="danger"
-                todos={overdue}
-                today={today}
-                subjectMap={subjectMap}
+              <SubjectTodoSections
+                todos={focusTodos}
+                subjects={subjects}
                 categoryMap={categoryMap}
-                onOpen={(todo) => setTodoDialog({ open: true, todo })}
-              />
-              <TodoGroup
-                title="오늘 마감"
-                todos={dueToday}
                 today={today}
-                subjectMap={subjectMap}
-                categoryMap={categoryMap}
-                onOpen={(todo) => setTodoDialog({ open: true, todo })}
-                emptyText="오늘 마감인 할 일이 없어요."
-              />
-              <TodoGroup
-                title="마감 임박"
-                todos={upcoming}
-                today={today}
-                subjectMap={subjectMap}
-                categoryMap={categoryMap}
+                compact
                 onOpen={(todo) => setTodoDialog({ open: true, todo })}
               />
             </div>
@@ -319,56 +304,5 @@ export function Metric({
       {progress && <ProgressBar className="mt-3" {...progress} />}
       {hint && <p className="text-fg-secondary mt-2 text-xs">{hint}</p>}
     </div>
-  );
-}
-
-function TodoGroup({
-  title,
-  tone,
-  todos,
-  today,
-  subjectMap,
-  categoryMap,
-  onOpen,
-  emptyText,
-}: {
-  title: string;
-  tone?: "danger";
-  todos: Todo[];
-  today: string;
-  subjectMap: Map<string, Subject>;
-  categoryMap: Map<string, Category>;
-  onOpen: (todo: Todo) => void;
-  emptyText?: string;
-}) {
-  if (todos.length === 0 && !emptyText) return null;
-  return (
-    <section className="py-1">
-      <h3
-        className={cn(
-          "pt-2 text-xs font-semibold",
-          tone === "danger" ? "text-danger" : "text-fg-secondary",
-        )}
-      >
-        {title} {todos.length > 0 && todos.length}
-      </h3>
-      {todos.length === 0 ? (
-        <p className="text-fg-tertiary py-3 text-sm">{emptyText}</p>
-      ) : (
-        <ul className="divide-border divide-y">
-          {todos.map((t) => (
-            <TodoRow
-              key={t.id}
-              todo={t}
-              today={today}
-              compact
-              subject={subjectMap.get(t.subject_id)}
-              category={t.category_id ? categoryMap.get(t.category_id) : undefined}
-              onOpen={onOpen}
-            />
-          ))}
-        </ul>
-      )}
-    </section>
   );
 }

@@ -4,7 +4,7 @@ import { ChevronDown, ListChecks, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { TodoFormDialog } from "@/components/todo/todo-form-dialog";
-import { TodoRow } from "@/components/todo/todo-row";
+import { SubjectTodoSections } from "@/components/todo/subject-todo-sections";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/components/ui/cn";
@@ -43,7 +43,6 @@ export function TodosView() {
   });
 
   const subjects = useMemo(() => subjectsQuery.data ?? [], [subjectsQuery.data]);
-  const subjectMap = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
   const categoryMap = useMemo(
     () => new Map((categories ?? []).map((c) => [c.id, c])),
     [categories],
@@ -79,7 +78,7 @@ export function TodosView() {
     <>
       <PageHeader
         title="할 일"
-        description="마감일이 빠른 순, 그다음 우선순위 순으로 정렬돼요."
+        description="과목별로 나눠 보여주고, 과목 안에서는 마감일이 빠른 순, 그다음 우선순위 순이에요."
         actions={
           <Button onClick={() => openDialog(null)}>
             <Plus aria-hidden className="size-4" />할 일 추가
@@ -157,18 +156,13 @@ export function TodosView() {
         ) : (
           <div className="px-5 py-2">
             {open.length > 0 ? (
-              <ul className="divide-border divide-y">
-                {open.map((t) => (
-                  <TodoRow
-                    key={t.id}
-                    todo={t}
-                    today={today}
-                    subject={subjectMap.get(t.subject_id)}
-                    category={t.category_id ? categoryMap.get(t.category_id) : undefined}
-                    onOpen={openDialog}
-                  />
-                ))}
-              </ul>
+              <SubjectTodoSections
+                todos={open}
+                subjects={subjects}
+                categoryMap={categoryMap}
+                today={today}
+                onOpen={openDialog}
+              />
             ) : (
               <p className="text-fg-secondary py-4 text-sm">남은 할 일을 모두 끝냈어요.</p>
             )}
@@ -191,18 +185,13 @@ export function TodosView() {
                   완료한 할 일 {done.length}개
                 </button>
                 {showDone && (
-                  <ul className="divide-border divide-y">
-                    {done.map((t) => (
-                      <TodoRow
-                        key={t.id}
-                        todo={t}
-                        today={today}
-                        subject={subjectMap.get(t.subject_id)}
-                        category={t.category_id ? categoryMap.get(t.category_id) : undefined}
-                        onOpen={openDialog}
-                      />
-                    ))}
-                  </ul>
+                  <SubjectTodoSections
+                    todos={done}
+                    subjects={subjects}
+                    categoryMap={categoryMap}
+                    today={today}
+                    onOpen={openDialog}
+                  />
                 )}
               </div>
             )}

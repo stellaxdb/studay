@@ -1,5 +1,5 @@
 import { diffDays } from "@/lib/time";
-import type { Priority, Todo } from "@/lib/types";
+import type { Priority, Subject, Todo } from "@/lib/types";
 
 export const PRIORITY_LABELS: Record<Priority, string> = {
   high: "높음",
@@ -103,4 +103,35 @@ export function progressBySubject(todos: Todo[]): Map<string, Progress> {
   const result = new Map<string, Progress>();
   for (const [id, list] of groups) result.set(id, progressOf(list));
   return result;
+}
+
+export interface SubjectTodoGroup {
+  subjectId: string;
+  subject: Subject | undefined;
+  todos: Todo[];
+}
+
+/**
+ * Splits todos into one group per subject, in the subjects' order (the order
+ * set on the 과목 screen). Todos keep their order inside each group; subjects
+ * without todos are left out, and unknown subjects come last.
+ */
+export function groupBySubject(todos: Todo[], subjects: Subject[]): SubjectTodoGroup[] {
+  const groups = new Map<string, Todo[]>();
+  for (const todo of todos) {
+    const list = groups.get(todo.subject_id);
+    if (list) list.push(todo);
+    else groups.set(todo.subject_id, [todo]);
+  }
+  const ordered: SubjectTodoGroup[] = [];
+  for (const subject of subjects) {
+    const list = groups.get(subject.id);
+    if (!list) continue;
+    ordered.push({ subjectId: subject.id, subject, todos: list });
+    groups.delete(subject.id);
+  }
+  for (const [subjectId, list] of groups) {
+    ordered.push({ subjectId, subject: undefined, todos: list });
+  }
+  return ordered;
 }
