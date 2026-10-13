@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import { SWRConfig } from "swr";
@@ -9,17 +9,22 @@ import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/states";
 import { ToastProvider, useToast } from "@/components/ui/toast";
+import { loginHref } from "@/lib/auth-redirect";
 import { cacheNeedsRefetch, clearCache } from "@/lib/data/keys";
 import { getSupabaseEnv } from "@/lib/env";
 import { getSupabase } from "@/lib/supabase/client";
 import { SidebarContent } from "./sidebar";
 import { SetupNotice } from "./setup-notice";
+import { ViewerProvider, type Viewer } from "./viewer";
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const toast = useToast();
-  const [user, setUser] = useState<{ id: string; email: string | null } | null>(null);
-  const ready = user !== null;
+  // null while checking the session; guests may only see the home page.
+  const [viewer, setViewer] = useState<Viewer | null>(null);
+  const user = viewer?.kind === "user" ? viewer : null;
+  const guest = viewer?.kind === "guest";
   const email = user?.email ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLDialogElement>(null);
@@ -32,22 +37,22 @@ function Shell({ children }: { children: ReactNode }) {
       if (!active) return;
       if (!data.user) {
         await clearCache({ refetch: false });
-        router.replace("/login");
+        if (active) setViewer({ kind: "guest" });
         return;
       }
-      const next = { id: data.user.id, email: data.user.email ?? null };
+      const next = { kind: "user" as const, id: data.user.id, email: data.user.email ?? null };
       // Never show one account's cached data to another account.
       if (lastUserId.current !== next.id || cacheNeedsRefetch()) {
         await clearCache({ refetch: true });
       }
       lastUserId.current = next.id;
-      if (active) setUser(next);
+      if (active) setViewer(next);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
-        setUser(null);
+        setViewer({ kind: "guest" });
         void clearCache({ refetch: false });
-        router.replace("/login");
+        router.replace("/");
       }
     });
     return () => {
@@ -55,6 +60,13 @@ function Shell({ children }: { children: ReactNode }) {
       sub.subscription.unsubscribe();
     };
   }, [router]);
+
+  // Guests can look at the home page; anything else asks them to sign in
+  // and brings them back afterwards.
+  const guestBlocked = guest && pathname !== "/";
+  useEffect(() => {
+    if (guestBlocked) router.replace(loginHref(`${pathname}${window.location.search}`));
+  }, [guestBlocked, pathname, router]);
 
   useEffect(() => {
     const el = drawerRef.current;
@@ -69,9 +81,9 @@ function Shell({ children }: { children: ReactNode }) {
       toast.error("로그아웃하지 못했어요. 다시 시도해 주세요.");
       return;
     }
-    setUser(null);
+    setViewer({ kind: "guest" });
     await clearCache({ refetch: false });
-    router.replace("/login");
+    router.replace("/");
     router.refresh();
   }
 
@@ -86,7 +98,7 @@ function Shell({ children }: { children: ReactNode }) {
 
       {/* Desktop sidebar */}
       <aside className="border-border bg-background fixed inset-y-0 left-0 hidden w-[232px] border-r md:block">
-        <SidebarContent email={email} onSignOut={signOut} showTimer={ready} />
+        <SidebarContent email={email} guest={guest} onSignOut={signOut} showTimer={Boolean(user)} />
       </aside>
 
       {/* Mobile top bar + drawer */}
@@ -125,8 +137,9 @@ function Shell({ children }: { children: ReactNode }) {
             </Button>
             <SidebarContent
               email={email}
+              guest={guest}
               onSignOut={signOut}
-              showTimer={ready}
+              showTimer={Boolean(user)}
               onNavigate={() => setDrawerOpen(false)}
             />
           </div>
@@ -135,7 +148,13 @@ function Shell({ children }: { children: ReactNode }) {
 
       <main id="main" className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         {/* Keyed by user: page state (filters, selections) never leaks across accounts. */}
-        {user ? <Fragment key={user.id}>{children}</Fragment> : <LoadingState className="py-24" />}
+        {viewer && !guestBlocked ? (
+          <ViewerProvider value={viewer}>
+            <Fragment key={user?.id ?? "guest"}>{children}</Fragment>
+          </ViewerProvider>
+        ) : (
+          <LoadingState className="py-24" />
+        )}
       </main>
     </div>
   );

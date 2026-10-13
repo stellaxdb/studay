@@ -292,7 +292,7 @@ export function DashboardView() {
   );
 }
 
-function Metric({
+export function Metric({
   label,
   value,
   hint,

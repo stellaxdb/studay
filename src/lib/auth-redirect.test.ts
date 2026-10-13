@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authCallbackUrl, safeNext } from "@/lib/auth-redirect";
+import { authCallbackUrl, loginHref, safeNext } from "@/lib/auth-redirect";
 
 describe("safeNext", () => {
   it("keeps same-site paths", () => {
@@ -21,5 +21,14 @@ describe("authCallbackUrl", () => {
     expect(authCallbackUrl("http://localhost:3000", "https://evil.example")).toBe(
       "http://localhost:3000/auth/callback?next=%2F",
     );
+  });
+});
+
+describe("loginHref", () => {
+  it("links to the start page and comes back to the page the visitor wanted", () => {
+    expect(loginHref("/todos")).toBe("/login?next=%2Ftodos");
+    expect(loginHref("/")).toBe("/login");
+    expect(loginHref(null)).toBe("/login");
+    expect(loginHref("https://evil.example")).toBe("/login");
   });
 });

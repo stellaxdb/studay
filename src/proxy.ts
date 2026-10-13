@@ -5,6 +5,8 @@ import { getSupabaseEnv } from "@/lib/env";
 const PUBLIC_PATHS = ["/login", "/signup", "/auth"];
 
 function isPublic(pathname: string) {
+  // The home page is open to guests (it shows no personal data until sign-in).
+  if (pathname === "/") return true;
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 

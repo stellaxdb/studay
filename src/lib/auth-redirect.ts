@@ -6,6 +6,12 @@ export function safeNext(value: string | null | undefined): string {
   return value;
 }
 
+/** The start (login) page that returns to `next` after signing in. */
+export function loginHref(next?: string | null): string {
+  const target = safeNext(next);
+  return target === "/" ? "/login" : `/login?next=${encodeURIComponent(target)}`;
+}
+
 /** Absolute URL of the auth callback route that finishes Google sign-in. */
 export function authCallbackUrl(origin: string, next?: string | null): string {
   const url = new URL("/auth/callback", origin);

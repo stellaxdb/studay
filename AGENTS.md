@@ -252,7 +252,7 @@
 ### 폴더 구조
 
 - `src/app/(auth)/` 시작하기 화면(`/login`, 가입과 로그인이 같은 Google 버튼. `/signup`은 `/login`으로 이동), `src/app/(app)/` 로그인 후 화면, `src/app/auth/callback/` Google 로그인 완료 처리
-- `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy)
+- `src/proxy.ts` 세션 갱신과 비로그인 접근 차단 (Next.js 16에서 middleware 대신 proxy). 홈(`/`)만 비로그인 둘러보기 허용(`guest-home.tsx`, 개인 데이터 조회 없음), 다른 화면·동작은 `loginHref(next)`로 시작하기 화면을 거친다
 - `src/lib/` 순수 로직(`time.ts`, `timer.ts`, `todos.ts`, `stats.ts`, `events.ts`)과 같은 이름의 `*.test.ts`, `src/test/` 테스트용 데이터 생성 함수, `analytics.ts` GA4 이벤트(성공한 작업만, 개인정보 파라미터 금지. 이벤트를 바꾸면 `docs/analytics.md`도 갱신), `src/lib/data/` Supabase 조회(`queries.ts`)·변경(`mutations.ts`)
 - `src/components/ui/` 공통 UI, 그 외 `src/components/*` 도메인별 컴포넌트
 - `supabase/migrations/` DB 스키마·RLS·타이머 함수, `scripts/test-db.mjs` DB 통합 테스트
