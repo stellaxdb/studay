@@ -1,23 +1,33 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
 import { ColorDot } from "@/components/ui/badge";
 import { cn } from "@/components/ui/cn";
+import { loginHref } from "@/lib/auth-redirect";
 import { useSubjects } from "@/lib/data/queries";
 import { useActiveElapsed } from "@/lib/hooks";
 import { formatClock } from "@/lib/time";
 import { PRIMARY_NAV, SECONDARY_NAV, type NavItem } from "./nav-items";
 
-function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
+function NavLink({
+  item,
+  onNavigate,
+  guest,
+}: {
+  item: NavItem;
+  onNavigate?: () => void;
+  /** Guests are sent to sign in first, then on to the page. */
+  guest?: boolean;
+}) {
   const pathname = usePathname();
   const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
   const Icon = item.icon;
   return (
     <Link
-      href={item.href}
+      href={guest && item.href !== "/" ? loginHref(item.href) : item.href}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
@@ -69,11 +79,13 @@ function ActiveTimerCard({ onNavigate }: { onNavigate?: () => void }) {
 
 export function SidebarContent({
   email,
+  guest = false,
   onSignOut,
   onNavigate,
   showTimer = true,
 }: {
   email: string | null;
+  guest?: boolean;
   onSignOut: () => void;
   onNavigate?: () => void;
   showTimer?: boolean;
@@ -86,7 +98,7 @@ export function SidebarContent({
 
       <nav aria-label="주 메뉴" className="flex flex-1 flex-col gap-0.5 px-3 pt-2">
         {PRIMARY_NAV.map((item) => (
-          <NavLink key={item.href} item={item} onNavigate={onNavigate} />
+          <NavLink key={item.href} item={item} onNavigate={onNavigate} guest={guest} />
         ))}
       </nav>
 
@@ -97,16 +109,27 @@ export function SidebarContent({
         className="border-border flex flex-col gap-0.5 border-t px-3 py-3"
       >
         {SECONDARY_NAV.map((item) => (
-          <NavLink key={item.href} item={item} onNavigate={onNavigate} />
+          <NavLink key={item.href} item={item} onNavigate={onNavigate} guest={guest} />
         ))}
-        <button
-          type="button"
-          onClick={onSignOut}
-          className="text-fg-secondary hover:bg-surface-subtle hover:text-fg flex h-10 items-center gap-3 rounded-[var(--radius-control)] px-3 text-sm font-medium transition-colors duration-150"
-        >
-          <LogOut aria-hidden className="size-5" strokeWidth={1.8} />
-          로그아웃
-        </button>
+        {guest ? (
+          <Link
+            href="/login"
+            onClick={onNavigate}
+            className="text-primary hover:bg-primary-subtle flex h-10 items-center gap-3 rounded-[var(--radius-control)] px-3 text-sm font-semibold transition-colors duration-150"
+          >
+            <LogIn aria-hidden className="size-5" strokeWidth={1.8} />
+            로그인
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="text-fg-secondary hover:bg-surface-subtle hover:text-fg flex h-10 items-center gap-3 rounded-[var(--radius-control)] px-3 text-sm font-medium transition-colors duration-150"
+          >
+            <LogOut aria-hidden className="size-5" strokeWidth={1.8} />
+            로그아웃
+          </button>
+        )}
         {email && <p className="text-fg-tertiary truncate px-3 pt-1 text-xs">{email}</p>}
       </nav>
     </div>
