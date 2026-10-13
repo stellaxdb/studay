@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { filterTodos, isDueSoon, isOverdue, progressBySubject, sortTodos } from "@/lib/todos";
+import {
+  filterTodos,
+  groupBySubject,
+  isDueSoon,
+  isOverdue,
+  progressBySubject,
+  sortTodos,
+} from "@/lib/todos";
+import type { Subject } from "@/lib/types";
 import { todo } from "@/test/factories";
 
 describe("sortTodos", () => {
@@ -55,5 +63,40 @@ describe("todo filters", () => {
     const p = progressBySubject(items);
     expect(p.get("s1")).toEqual({ done: 1, total: 4, percent: 25 });
     expect(p.get("s2")).toEqual({ done: 0, total: 1, percent: 0 });
+  });
+});
+
+describe("groupBySubject", () => {
+  const subject = (id: string, sort_order: number): Subject => ({
+    id,
+    user_id: "u",
+    name: id,
+    description: null,
+    color: "#000000",
+    weekly_goal_minutes: 0,
+    is_archived: false,
+    sort_order,
+    created_at: "2026-10-01T00:00:00Z",
+    updated_at: "2026-10-01T00:00:00Z",
+  });
+
+  it("follows the subject order and keeps each group's todo order", () => {
+    const todos = [
+      todo({ id: "a1", subject_id: "A" }),
+      todo({ id: "b1", subject_id: "B" }),
+      todo({ id: "a2", subject_id: "A" }),
+      todo({ id: "x1", subject_id: "gone" }),
+    ];
+    const groups = groupBySubject(todos, [subject("B", 0), subject("A", 1), subject("C", 2)]);
+    expect(groups.map((g) => [g.subjectId, g.todos.map((t) => t.id)])).toEqual([
+      ["B", ["b1"]],
+      ["A", ["a1", "a2"]],
+      ["gone", ["x1"]],
+    ]);
+    expect(groups[2].subject).toBeUndefined();
+  });
+
+  it("returns nothing for no todos", () => {
+    expect(groupBySubject([], [subject("A", 0)])).toEqual([]);
   });
 });
