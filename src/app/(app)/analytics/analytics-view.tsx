@@ -4,6 +4,7 @@ import { BarChart3 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { BarChart, type BarDatum } from "@/components/charts/bar-chart";
 import { PageHeader } from "@/components/layout/page-header";
+import { StudyLogCard } from "@/components/study-log/study-log-card";
 import { ColorDot } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress";
@@ -253,6 +254,8 @@ export function AnalyticsView() {
           </Card>
         </div>
       )}
+
+      <StudyLogCard />
     </>
   );
 }

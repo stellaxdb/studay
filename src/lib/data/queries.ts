@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import type { SessionWithSegments } from "@/lib/study-log";
 import { getSupabase } from "@/lib/supabase/client";
 import type {
   ActiveSession,
@@ -139,6 +140,25 @@ export function useSessions(from: string | null, to: string | null) {
       .limit(200);
     if (error) throw error;
     return data as StudySession[];
+  });
+}
+
+/**
+ * Completed sessions overlapping [from, to) with their segments, newest first.
+ * Unlike useSessions this includes a session that started the previous day.
+ */
+export function useSessionsOverlapping(from: string | null, to: string | null) {
+  return useSWR(from && to ? ["sessions", "overlap", from, to] : null, async () => {
+    const { data, error } = await getSupabase()
+      .from("study_sessions")
+      .select("*, study_segments(started_at, ended_at)")
+      .eq("status", "completed")
+      .lt("started_at", to!)
+      .gt("ended_at", from!)
+      .order("started_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return data as SessionWithSegments[];
   });
 }
 
