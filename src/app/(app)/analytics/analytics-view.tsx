@@ -29,6 +29,7 @@ import {
   weekdayLabel,
   weekdayOfKey,
 } from "@/lib/time";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 type Period = "7d" | "4w";
 
@@ -195,7 +196,10 @@ export function AnalyticsView() {
                       <li key={id}>
                         <div className="flex items-baseline justify-between gap-2 text-sm">
                           <span className="flex min-w-0 items-center gap-2 font-medium">
-                            <ColorDot color={s?.color ?? "#64748B"} className="size-2.5" />
+                            <ColorDot
+                              color={s?.color ?? FALLBACK_SUBJECT_COLOR}
+                              className="size-2.5"
+                            />
                             <span className="truncate">{s?.name ?? "삭제된 과목"}</span>
                           </span>
                           <span className="tabular text-fg-secondary shrink-0">

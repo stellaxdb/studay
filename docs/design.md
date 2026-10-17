@@ -149,8 +149,11 @@ adjust for contrast.
 -   Warning: due-soon states and caution.
 -   Danger: destructive actions, overdue states when appropriate, and
     validation errors.
--   Subject colors: allow a user-selected color per subject, but use
-    those colors mainly for small dots, labels, and progress indicators.
+-   Subject colors: the user picks one of 10 pastel colors per subject
+    (`SUBJECT_COLORS` in `src/lib/subjects.ts`: lavender, blue, sky, mint,
+    sage, lemon, peach, coral, pink, gray). Use them mainly for small dots,
+    labels, and progress indicators. They are intentionally soft and low in
+    contrast, so always show the subject name as text next to the color.
 
 Do not use many saturated colors at the same time. Avoid using color
 alone to communicate status; pair it with text or an icon.

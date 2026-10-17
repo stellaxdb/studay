@@ -1,12 +1,20 @@
+/**
+ * Pastel subject palette. Kept soft on purpose so subject colors sit quietly
+ * next to the purple accent; the subject name is always shown as text, so the
+ * color is a secondary cue only.
+ */
 export const SUBJECT_COLORS: { value: string; label: string }[] = [
-  { value: "#6C5CE7", label: "보라" },
-  { value: "#3B82F6", label: "파랑" },
-  { value: "#0EA5E9", label: "하늘" },
-  { value: "#0D9488", label: "청록" },
-  { value: "#16A34A", label: "초록" },
-  { value: "#CA8A04", label: "노랑" },
-  { value: "#EA580C", label: "주황" },
-  { value: "#DC2626", label: "빨강" },
-  { value: "#DB2777", label: "분홍" },
-  { value: "#64748B", label: "회색" },
+  { value: "#C9C3F9", label: "라벤더" },
+  { value: "#ADCDFC", label: "블루" },
+  { value: "#96D5F1", label: "스카이" },
+  { value: "#93DBCC", label: "민트" },
+  { value: "#AAD9AF", label: "세이지" },
+  { value: "#DACB93", label: "레몬" },
+  { value: "#F2BE9C", label: "피치" },
+  { value: "#F8B8B2", label: "코랄" },
+  { value: "#F3B7CD", label: "핑크" },
+  { value: "#C3CBD8", label: "그레이" },
 ];
+
+/** Color for a deleted subject or an event without a subject. */
+export const FALLBACK_SUBJECT_COLOR = "#C3CBD8";

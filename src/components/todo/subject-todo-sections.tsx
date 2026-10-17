@@ -4,6 +4,7 @@ import { ColorDot } from "@/components/ui/badge";
 import { groupBySubject } from "@/lib/todos";
 import type { Category, Subject, Todo } from "@/lib/types";
 import { TodoRow } from "./todo-row";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 /**
  * Todos shown in one section per subject (subject color dot, name, count),
@@ -35,7 +36,7 @@ export function SubjectTodoSections({
               id={headingId}
               className="text-fg flex items-center gap-2 pt-3 pb-1 text-sm font-semibold"
             >
-              <ColorDot color={subject?.color ?? "#64748B"} className="size-2.5" />
+              <ColorDot color={subject?.color ?? FALLBACK_SUBJECT_COLOR} className="size-2.5" />
               <span className="truncate">{subject?.name ?? "과목"}</span>
               <span className="text-fg-tertiary text-xs font-medium tabular-nums">
                 {list.length}

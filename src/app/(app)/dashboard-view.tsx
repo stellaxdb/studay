@@ -24,6 +24,7 @@ import { aggregateStudy, sumBySubject, sumDays } from "@/lib/stats";
 import { formatClock, formatDayLabel, formatDuration } from "@/lib/time";
 import { isDueSoon, isOverdue, progressBySubject, sortTodos } from "@/lib/todos";
 import type { Todo } from "@/lib/types";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 export function DashboardView() {
   const week = useWeek();
@@ -119,7 +120,9 @@ export function DashboardView() {
               {active.session.status === "running" ? "공부 중이에요" : "일시정지 중이에요"}
             </span>
             <span className="text-fg mt-0.5 flex items-center gap-1.5 text-sm">
-              <ColorDot color={subjectMap.get(active.session.subject_id)?.color ?? "#64748B"} />
+              <ColorDot
+                color={subjectMap.get(active.session.subject_id)?.color ?? FALLBACK_SUBJECT_COLOR}
+              />
               {subjectMap.get(active.session.subject_id)?.name ?? "과목"}
             </span>
           </span>
