@@ -22,6 +22,7 @@
    1. `20261011000000_init.sql` — 테이블, RLS, 타이머 함수
    2. `20261011160000_social_login_display_name.sql` — Google 가입자 이름 자동 설정
    3. `20261011170000_subject_sort_order.sql` — 과목 순서 변경
+   4. `20261018000000_pastel_subject_colors.sql` — 과목 색상을 파스텔 팔레트로 변경
    - Supabase CLI를 쓴다면: `npx supabase link --project-ref <ref>` 후 `npx supabase db push`
 3. **Table Editor**에 7개 테이블(`user_settings`, `subjects`, `categories`, `todos`, `calendar_events`, `study_sessions`, `study_segments`)이 생겼는지 확인합니다. 빨간 **Unrestricted** 표시가 없어야 RLS가 켜진 상태입니다.
 

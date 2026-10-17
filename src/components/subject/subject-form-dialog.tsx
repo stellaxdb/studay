@@ -131,7 +131,7 @@ function SubjectForm({ onClose, subject, onCreated }: Props) {
                 />
                 <span
                   aria-hidden
-                  className="flex size-6 items-center justify-center rounded-full text-white"
+                  className="text-fg flex size-6 items-center justify-center rounded-full"
                   style={{ backgroundColor: c.value }}
                 >
                   {selected && <Check className="size-3.5" strokeWidth={3} />}

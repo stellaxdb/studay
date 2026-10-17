@@ -36,6 +36,7 @@ import {
 } from "@/lib/time";
 import { sortTodos } from "@/lib/todos";
 import type { StudySession } from "@/lib/types";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 type Action = "start" | "pause" | "resume" | "finish" | "discard" | null;
 
@@ -365,7 +366,7 @@ export function FocusView() {
                     const subj = subjectMap.get(s.subject_id);
                     return (
                       <li key={s.id} className="flex items-center gap-3 px-3 py-2.5">
-                        <ColorDot color={subj?.color ?? "#64748B"} />
+                        <ColorDot color={subj?.color ?? FALLBACK_SUBJECT_COLOR} />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{subj?.name ?? "과목"}</p>
                           <p className="tabular text-fg-secondary text-xs">

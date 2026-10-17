@@ -27,6 +27,7 @@ import {
 } from "@/lib/time";
 import { sortTodos } from "@/lib/todos";
 import type { CalendarEvent, Todo } from "@/lib/types";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 const MAX_ITEMS_IN_CELL = 3;
 
@@ -79,7 +80,8 @@ export function CalendarView() {
       push(todo.due_date, { kind: "todo", todo, color: subject.color });
     }
     for (const event of eventsQuery.data ?? []) {
-      const color = (event.subject_id && subjectMap.get(event.subject_id)?.color) || "#64748B";
+      const color =
+        (event.subject_id && subjectMap.get(event.subject_id)?.color) || FALLBACK_SUBJECT_COLOR;
       for (const key of eventDays(event, timeZone)) push(key, { kind: "event", event, color });
     }
     return map;
@@ -250,7 +252,7 @@ export function CalendarView() {
                             >
                               <span
                                 aria-hidden
-                                className="h-3 w-0.5 shrink-0 rounded-full"
+                                className="h-3 w-1 shrink-0 rounded-full"
                                 style={{ backgroundColor: item.color }}
                               />
                               <Icon aria-hidden className="text-fg-secondary size-3 shrink-0" />

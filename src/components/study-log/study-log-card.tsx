@@ -38,14 +38,13 @@ import {
   weekdayOfKey,
 } from "@/lib/time";
 import type { Subject } from "@/lib/types";
+import { FALLBACK_SUBJECT_COLOR } from "@/lib/subjects";
 
 const UNIT_OPTIONS: { value: LogUnit; label: string }[] = [
   { value: "day", label: "일" },
   { value: "week", label: "주" },
   { value: "month", label: "월" },
 ];
-
-const FALLBACK_COLOR = "#64748B";
 
 type SubjectMap = Map<string, Subject>;
 
@@ -271,7 +270,7 @@ function SubjectBar({
           className="h-full"
           style={{
             width: `${(seconds / total) * 100}%`,
-            background: subjectMap.get(id)?.color ?? FALLBACK_COLOR,
+            background: subjectMap.get(id)?.color ?? FALLBACK_SUBJECT_COLOR,
           }}
         />
       ))}
@@ -294,7 +293,7 @@ function SubjectTimes({
         const s = subjectMap.get(id);
         return (
           <li key={id} className="flex items-center gap-1.5">
-            <ColorDot color={s?.color ?? FALLBACK_COLOR} />
+            <ColorDot color={s?.color ?? FALLBACK_SUBJECT_COLOR} />
             {s?.name ?? "삭제된 과목"}
             <span className="tabular text-fg font-semibold">{formatDuration(seconds)}</span>
           </li>
@@ -499,7 +498,7 @@ function DayDetail({
                   </td>
                   <td className="px-4 py-3.5 align-top max-sm:col-span-2 max-sm:row-start-2 max-sm:p-0">
                     <p className="flex items-center gap-1.5 font-semibold">
-                      <ColorDot color={s?.color ?? FALLBACK_COLOR} />
+                      <ColorDot color={s?.color ?? FALLBACK_SUBJECT_COLOR} />
                       {s?.name ?? "삭제된 과목"}
                     </p>
                     {todoTitle && (
